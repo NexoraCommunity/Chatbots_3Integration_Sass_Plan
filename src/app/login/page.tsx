@@ -4,12 +4,62 @@ import { Input } from "@/src/components/ui/Input";
 import { useRouter } from "next/navigation";
 import { SwitchTabs } from "@/src/components/SwitchTabs";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
+import { useState } from "react";
+import { LoginProps, OtpCodeProps } from "@/src/model/authentication.model";
+import { useAuthStore } from "@/src/store/auth.store";
+import OtpModal from "@/src/components/ui/modal/VerificationOtp";
+import { GoogleOauth } from "@/src/services/api-auth/authentication.route";
 
 const Page = () => {
   const router = useRouter();
+  const { login, isLoading, otpCode, } = useAuthStore();
+  const [error, setError] = useState("");
+  const [openOtp, setOpenOtp] = useState(false);
+
+  const [datalogin, setDatalogin] = useState<LoginProps>({ email: '', password: '' });
+  const handleClickGoogle = async () => {
+    await GoogleOauth()
+  }
+
+
+  const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await login(datalogin);
+      if (response) {
+        setOpenOtp(true)
+      }
+
+    } catch (error: any) {
+      setError(error.error)
+    }
+  }
+
+  const handleOnSubmitOtp = async (e: React.FormEvent<HTMLFormElement>, Otp: string) => {
+    e.preventDefault();
+
+    console.log(Otp)
+    try {
+      const otp: OtpCodeProps = {
+        email: datalogin.email,
+        codeOTP: Otp
+      }
+      const response = await otpCode(otp);
+      if (response) {
+        router.push("/dashboard")
+        console.log(response)
+      }
+
+    } catch (error: any) {
+      console.log(error)
+    }
+  }
 
   return (
-    <div className="flex w-full h-full items-center overflow-hidden">
+    <div className="flex w-full h-screen items-center overflow-hidden">
+      <OtpModal isOpen={openOtp} onClose={() => setOpenOtp(false)} handleSubmit={handleOnSubmitOtp} />
       {/* left side */}
       <div className="flex flex-col items-center w-1/2 p-20">
         <h3 className="text-[#525252] text-4xl font-bold my-5">
@@ -23,38 +73,41 @@ const Page = () => {
               router.push(`/${tab}`);
             }}
           />
+          <p className="text-red-500 text-xs">{error}</p>
 
           {/* form */}
-          <form action="">
-            <div className="w-100 h-auto flex flex-col justify-center items-center gap-2 p-5 bg-[#F4FFFD] border rounded-xl border-[#DBD5D5] text-[#575555]">
+          <form action="" onSubmit={handleOnSubmit}>
+            <div className="w-100 h-auto font-medium flex flex-col justify-center items-center gap-2 p-5 bg-[#F4FFFD] border rounded-xl border-[#DBD5D5] text-[#575555]">
               <div className="w-full">
-                <p className="text-xs place-self-start ml-2 mb-1.5">
-                  Email address
-                </p>
-                <div className="flex focus-within:border-[#01D2B3] border border-[#575555] rounded-xl items-center">
-                  <Icon icon="mdi:email" width={30} className="ml-7 text-[#575555]"/>
-                  <div className="h-10 w-px bg-gray-500 mx-7 mr-4"></div>
-                  <Input
-                    placeholder="Masukan email"
-                    type="email"
-                    variant="custom"
-                    className="focus:outline-none text-[#575555]"
+                <p className="text-sm ml-2 mb-1.5 ">Email Address</p>
+                <Input
+                  placeholder="Masukan Email address"
+                  type="email"
+                  onChange={(e) => setDatalogin({ ...datalogin, email: e.target.value })}
+                  variant="secondary"
+                  required
+                />
+              </div>
+              <div className="w-full relative">
+                <p className="text-sm ml-2 mb-1.5">Password</p>
+                <Input
+                  placeholder="Masukan Password"
+                  type="password"
+                  variant="secondary"
+                  onChange={(e) => setDatalogin({ ...datalogin, password: e.target.value })}
+
+                />
+                <div className="absolute right-0 flex items-center justify-center h-12 bottom-0">
+
+                  <Icon
+                    icon="mdi:eye"
+                    width={25}
+                    className="mr-5 text-[#575555] cursor-pointer"
                   />
                 </div>
               </div>
-              <div className="w-full">
-                <p className="text-xs place-self-start ml-2 mb-1.5">Password</p>
-                <div className="flex focus-within:border-[#01D2B3] border border-[#575555] rounded-xl items-center">
-                  <Icon icon="carbon:password" width={30} className=" ml-7 text-[#575555]"/>
-                  <div className="h-10 w-px bg-gray-500 ml-7 mr-4"></div>
-                <Input
-                  placeholder="Masukan password"
-                  type="password"
-                  variant="custom"
-                  className="focus:outline-none text-[#575555]"
-                />
-                <Icon icon="mdi:eye" width={30} className="mr-5 text-[#575555] cursor-pointer"/>
-                </div>
+              <div className="mt-2 text-[#01D2B3] text-sm  cursor-pointer">
+                <p>Lupa Password?</p>
               </div>
             </div>
             <div className="mt-5">
@@ -64,15 +117,16 @@ const Page = () => {
 
           {/* Another Login */}
           <div className="flex flex-col items-center gap-3">
-            <p className="flex items-center gap-2 text-xs font-medium text-black">
-              <span className="w-34 h-px bg-black"></span>
+            <p className="flex items-center gap-2 text-xs font-medium text-black w-full">
+              <span className="w-34 border-t border-black"></span>
               or continue with
-              <span className="w-34 h-px bg-black"></span>
+              <span className="w-34 border-t border-black"></span>
             </p>
 
             <div className="flex gap-5">
               <div className="w-10 h-10 border border-gray-300 rounded-full flex justify-center items-center cursor-pointer">
                 <Icon
+                  onClick={handleClickGoogle}
                   icon="material-icon-theme:google"
                   width="20"
                   height="20"
@@ -89,9 +143,14 @@ const Page = () => {
       </div>
       {/* right side */}
       <div className="w-1/2 h-screen bg-[#01D2B3] p-5">
-          <div className="foto w-full h-full bg-white">
-
-          </div>
+        <div className="foto w-full h-full relative rounded-lg overflow-hidden">
+          <Image
+            src={"/images/authentication.jpg"}
+            alt="Login Image"
+            fill
+            className="object-cover"
+          />
+        </div>
       </div>
     </div>
   );

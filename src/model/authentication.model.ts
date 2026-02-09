@@ -1,6 +1,42 @@
 export type RegisterProps = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-}
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  repeatPassword?: string;
+};
+
+export type LoginProps = {
+  email: string;
+  password: string;
+};
+export type OtpCodeProps = {
+  email: string;
+  codeOTP: string;
+};
+
+export type PostCurrentUser = {
+  id: string;
+  firstName: string;
+  lastName?: string | null;
+  picture?: string | null;
+};
+
+export type VerifPassword = {
+  id: string;
+  email: string;
+  password: string;
+  codeOTP: string;
+};
+export type UpdatePassworduser = {
+  id: string;
+  email: string;
+};
+
+export type User = {
+  id: true;
+  firstName: true;
+  email: true;
+  lastName: true;
+  picture: true;
+};
