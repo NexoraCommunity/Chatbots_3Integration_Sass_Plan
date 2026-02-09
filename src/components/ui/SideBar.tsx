@@ -80,7 +80,6 @@ const integrationSubMenu = [
   { labelSub: "Activation", subHref: "/integration/activation" },
   { labelSub: "Whatsapp", subHref: "/integration/whatsapp" },
   { labelSub: "Telegram", subHref: "/integration/telegram" },
-  { labelSub: "LLM", subHref: "/integration/llm" },
   { labelSub: "Website", subHref: "/integration/website" },
 ];
 

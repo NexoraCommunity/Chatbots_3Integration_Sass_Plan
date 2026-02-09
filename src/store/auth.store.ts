@@ -2,48 +2,63 @@ import { create } from "zustand";
 import type {
   LoginProps,
   OtpCodeProps,
+  PostCurrentUser,
+  RegisterProps,
+  UpdatePassworduser,
   User,
+  VerifPassword,
 } from "@/src/model/authentication.model";
 import {
+  forgotPassword,
+  getCurrentUser,
   Login,
   logOut,
   otpCode,
   refreshToken,
+  Register,
+  updateUser,
+  verifPasswordOtp,
 } from "../services/api-auth/authentication.route";
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
 
-  login: (req: LoginProps) => Promise<void | unknown>;
-  otpCode: (req: OtpCodeProps) => Promise<void>;
+  login: (req: LoginProps) => Promise<any>;
+  register: (req: RegisterProps) => Promise<any>;
+  otpCode: (req: OtpCodeProps) => Promise<any>;
   logout: () => void;
   refreshToken: (refreshToken: string) => Promise<void>;
-  forgotPassword: () => Promise<void>;
-  verifPasswordOtp: () => Promise<void>;
-  updateUser: () => Promise<void>;
+  forgotPassword: (req: UpdatePassworduser) => Promise<void>;
+  verifPasswordOtp: (req: VerifPassword) => Promise<void>;
+  updateUser: (req: PostCurrentUser) => Promise<void>;
+  getCurrentUser: () => Promise<any>;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
-  token: null,
   isLoading: false,
   isAuthenticated: false,
-  errorMessage: "",
 
   login: async (req: LoginProps) => {
     set({ isLoading: true });
     try {
       const data = await Login(req);
-      set({
-        user: data.user,
-        token: data.token,
-        isAuthenticated: false,
-      });
+      return data;
     } catch (error) {
-      return error;
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  register: async (req: RegisterProps) => {
+    set({ isLoading: true });
+    try {
+      const data = await Register(req);
+      return data;
+    } catch (error) {
+      throw error;
     } finally {
       set({ isLoading: false });
     }
@@ -53,26 +68,89 @@ export const useAuthStore = create<AuthState>()((set) => ({
     try {
       const data = await otpCode(req);
       set({
-        user: data.user,
-        token: data.token,
         isAuthenticated: true,
       });
+      return data;
+    } catch (error) {
+      throw error;
     } finally {
       set({ isLoading: false });
     }
   },
   logout: async () => {
-    await logOut();
-    set({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-    });
+    set({ isLoading: true });
+    try {
+      const data = await logOut();
+      set({
+        user: null,
+        isAuthenticated: false,
+      });
+      return data;
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
   },
   refreshToken: async () => {
-    await refreshToken();
+    set({ isLoading: true });
+    try {
+      const data = await refreshToken();
+      return data;
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
   },
-  forgotPassword: async () => {},
-  verifPasswordOtp: async () => {},
-  updateUser: async () => {},
+  getCurrentUser: async () => {
+    set({ isLoading: true });
+    try {
+      const data = await getCurrentUser();
+      set({
+        user: data.data,
+      });
+      return data;
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  forgotPassword: async (req: UpdatePassworduser) => {
+    set({ isLoading: true });
+    try {
+      const data = await forgotPassword(req);
+      return data;
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  verifPasswordOtp: async (req: VerifPassword) => {
+    set({ isLoading: true });
+    try {
+      const data = await verifPasswordOtp(req);
+      return data;
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  updateUser: async (req: PostCurrentUser) => {
+    set({ isLoading: true });
+    try {
+      const data = await updateUser(req);
+      set({
+        user: data.data,
+      });
+      return data;
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));
