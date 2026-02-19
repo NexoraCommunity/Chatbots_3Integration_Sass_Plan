@@ -248,3 +248,10 @@ body {
     background-color: #F5F5F9;
     font-family: "Poppins", sans-serif;
 }
+
+.z-tinggi {
+    z-index: 9999;
+}
+.z-sedang {
+    z-index: 9998;
+}

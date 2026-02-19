@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Icon } from "@iconify/react";
 import { SearchBar } from "@/src/components/ui/SearchBar";
 import SideBar from "@/src/components/ui/SideBar";
@@ -13,45 +13,56 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const { getCurrentUser } = useAuthStore();
-  const [isChecking, setIsChecking] = useState(false)
+  const [isChecking, setIsChecking] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const data = await getCurrentUser();
-        if (data) {
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const verifyAuth = async () => {
+  //     try {
+  //       const data = await getCurrentUser();
+  //       if (data) {
+  //         setIsAuthenticated(true);
+  //       }
+  //     } catch (error) {
+  //       setIsAuthenticated(false);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    verifyAuth();
-  }, [getCurrentUser]);
+  //   verifyAuth();
+  // }, [getCurrentUser]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [isLoading, isAuthenticated, router]);
-
 
   return (
     <div className="flex grow">
       <div className="w-71.25 h-auto">
         <SideBar />
       </div>
-      <div className="flex-1 p-6">
+      <div className="flex-1 px-6 pb-6">
         <div className="flex bg-white justify-between items-center rounded-lg shadow px-3">
-          <div className="flex items-center">
+          <div className="flex items-center w-full">
             <Icon icon="material-symbols:search" width={26} height={26} />
-            <SearchBar variant="default" />
+            <SearchBar variant="default" className="w-full ml-2" />
+          </div>
+          {/* credit */}
+          <div className="credit flex items-center gap-2 w-[15%] border-l-2 border-[#E0E0E0] pl-4">
+            <Icon
+              icon="bxs:coin-stack"
+              width={30}
+              className="text-yellow-500"
+            />
+            <div className="text-sm font-medium">
+              <p>Credit</p>
+              <p className="text-green-500">970rb</p>
+            </div>
           </div>
         </div>
 

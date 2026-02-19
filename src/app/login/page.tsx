@@ -16,8 +16,8 @@ const Page = () => {
   const { login, isLoading, otpCode, } = useAuthStore();
   const [error, setError] = useState("");
   const [openOtp, setOpenOtp] = useState(false);
-
   const [datalogin, setDatalogin] = useState<LoginProps>({ email: '', password: '' });
+  
   const handleClickGoogle = async () => {
     await GoogleOauth()
   }
@@ -59,7 +59,7 @@ const Page = () => {
 
   return (
     <div className="flex w-full h-screen items-center overflow-hidden">
-      <OtpModal isOpen={openOtp} onClose={() => setOpenOtp(false)} handleSubmit={handleOnSubmitOtp} />
+      <OtpModal open={openOtp} onClose={() => setOpenOtp(false)} handleSubmit={handleOnSubmitOtp} />
       {/* left side */}
       <div className="flex flex-col items-center w-1/2 p-20">
         <h3 className="text-[#525252] text-4xl font-bold my-5">

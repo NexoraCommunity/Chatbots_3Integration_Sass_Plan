@@ -1,5 +1,7 @@
+import { Switch } from "@/components/ui/switch";
 import BarChartDashboard from "@/src/components/ui/BarChart";
 import { Checkbox } from "@/src/components/ui/Checkbox";
+import GaugeChart from "@/src/components/ui/GaugeChart";
 import { Icon } from "@iconify/react";
 import React from "react";
 
@@ -62,7 +64,7 @@ const page = () => {
       <div className="w-full h-100 rounded-lg shadow my-5">
         <BarChartDashboard />
       </div>
-
+      {/* Bagian bawah */}
       <div className="grid grid-cols-3 gap-5 text-[#655E5E]">
         <div className="rounded-lg w-full h-auto bg-white shadow p-5">
           <p className="w-40 mb-3">Integration Platform Connected</p>
@@ -112,11 +114,36 @@ const page = () => {
           </div>
         </div>
 
+        <div className="rounded-lg w-full h-auto bg-white shadow p-5">
+          <p>Kestabilan Token</p>
+          <div className="flex flex-col items-center justify-center mt-9">
+            <GaugeChart value={2000} />
+          </div>
+          <div className="flex flex-col items-center justify-around mt-9 gap-4">
+            <div className="grid grid-cols-2 w-full items-center gap-16">
+              <p className="text-xl">optimal</p>
+              <p className="text-xl text-green-500">2000 Token</p>
+            </div>
+            <div className="grid grid-cols-2 w-full items-center gap-16">
+              <p className="text-xl">stabil</p>
+              <p className="text-xl text-green-400">2000 Token</p>
+            </div>
+            <div className="grid grid-cols-2 w-full items-center gap-16">
+              <p className="text-xl">menipis</p>
+              <p className="text-xl text-red-400">2000 Token</p>
+            </div>
+            <div className="grid grid-cols-2 w-full items-center gap-16">
+              <p className="text-xl">kritis</p>
+              <p className="text-xl text-red-500">2000 Token</p>
+            </div>
+          </div>
+        </div>
 
         {/* Product */}
         <div className="rounded-lg w-full h-auto bg-white shadow p-5">
           <p className="w-40 mb-9">Active Product</p>
-          <div className="active-product flex  gap-6.25 items-center justify-between">
+          <div className="flex flex-col gap-6">
+          <div className="active-product flex gap-6.25 items-center justify-between">
             <div className="flex gap-6.25 items-center justify-between">
               <div className="gambar-product flex items-center justify-center border rounded-lg w-12.5 h-12.5 bg-[#cccccc]"></div>
               <div className="flex flex-col justify-center">
@@ -124,7 +151,28 @@ const page = () => {
                 <p className="text-xs">ID : SPU-0001</p>
               </div>
             </div>
-            0000
+                <Switch size="lg" />
+          </div>
+          <div className="active-product flex gap-6.25 items-center justify-between">
+            <div className="flex gap-6.25 items-center justify-between">
+              <div className="gambar-product flex items-center justify-center border rounded-lg w-12.5 h-12.5 bg-[#cccccc]"></div>
+              <div className="flex flex-col justify-center">
+                <p>Sapu</p>
+                <p className="text-xs">ID : SPU-0001</p>
+              </div>
+            </div>
+                <Switch size="lg" />
+          </div>
+          <div className="active-product flex gap-6.25 items-center justify-between">
+            <div className="flex gap-6.25 items-center justify-between">
+              <div className="gambar-product flex items-center justify-center border rounded-lg w-12.5 h-12.5 bg-[#cccccc]"></div>
+              <div className="flex flex-col justify-center">
+                <p>Sapu</p>
+                <p className="text-xs">ID : SPU-0001</p>
+              </div>
+            </div>
+                <Switch size="lg" />
+          </div>
           </div>
         </div>
       </div>

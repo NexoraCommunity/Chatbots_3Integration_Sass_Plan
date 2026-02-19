@@ -15,7 +15,8 @@ export function AddLlmIntegrationModal({
 }: AddWhatsappNumberModalProps) {
   const [aiModel, setAiModel] = useState("");
   return (
-    <BaseModal open={open} onClose={onClose} title="Tambahkan LLM Integration">
+    <BaseModal open={open} onClose={onClose}>
+      <p className="text-lg mb-4">Tambahkan LLM Integration</p>
       <div className="space-y-4">
           <Input placeholder="Tambahkan Token" variant="secondary" className="rounded-lg"/>
           <Input placeholder="Nama Bot" variant="secondary" className="rounded-lg"/>

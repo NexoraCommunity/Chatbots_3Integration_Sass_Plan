@@ -10,7 +10,8 @@ interface AddWhatsappNumberModalProps {
 
 export function AddWhatsappNumberModal({ open, onClose }: AddWhatsappNumberModalProps) {
   return (
-   <BaseModal open={open} onClose={onClose} title="Tambahkan Nomor WhatsApp">
+   <BaseModal open={open} onClose={onClose}>
+      <p className="text-lg mb-4">Tambahkan Nomor WhatsApp</p>
       <div className="space-y-4">
         <Input placeholder="Tambahkan Token" variant="secondary"/>
         <Input placeholder="Nama Bot" variant="secondary"/>

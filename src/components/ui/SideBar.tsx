@@ -4,6 +4,7 @@ import { SubSideBarItems } from "./subSideBarItems";
 import { Icon } from "@iconify/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { ViewProfileModal } from "./modal/ViewProfileModal";
 
 const botMenu = [
   {
@@ -87,10 +88,15 @@ const integrationSubMenu = [
 const SideBar = () => {
   const activePath = usePathname();
   const [openIntegration, setOpenIntregation] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
 
   useEffect(() => {
     setOpenIntregation(activePath.startsWith("/integration"));
   }, [activePath]);
+
+  const handleOpenProfile = () => {
+    setOpenProfile(!openProfile);
+  };
 
   return (
     <div className="fixed flex flex-col h-screen w-69 bg-linear-to-b from-[#FFFFFF] to-[#F6F6F6]">
@@ -174,8 +180,21 @@ const SideBar = () => {
         </div>
       </div>
 
+      {/* modal */}
+      {openProfile && (
+        <div className="absolute bottom-18 w-full flex justify-center items-center">
+          <ViewProfileModal
+            open={openProfile}
+            onClose={() => setOpenProfile(false)}
+          />
+        </div>
+      )}
+      {/* profile */}
       <div className="sticky bottom-0 left-0 w-full flex justify-between items-center h-20 border-t-2 px-3.75 bg-white">
-        <div className="flex justify-center items-center w-full gap-3.75">
+        <div
+          className="flex items-center w-full gap-3.75"
+          onClick={() => handleOpenProfile()}
+        >
           <span className="Profile rounded-full bg-black w-10 h-10 flex justify-center items-center">
             <Icon
               icon="mdi:account-circle"
@@ -189,7 +208,7 @@ const SideBar = () => {
             <p className="text-xs text-[#A3A3A3]">Free(gamodal)</p>
           </div>
         </div>
-        <p className="text-sm text-[#767373] px-2 py-1 border rounded-lg">
+        <p className="text-sm text-[#767373] px-2 py-1 border border-[#767373] rounded-lg">
           Upgrade
         </p>
       </div>

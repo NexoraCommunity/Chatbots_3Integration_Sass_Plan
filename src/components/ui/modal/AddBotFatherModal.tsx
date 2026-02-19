@@ -11,7 +11,8 @@ interface AddBotFatherModalProps {
 
 export function AddBotFatherModal({ open, onClose }: AddBotFatherModalProps) {
   return (
-    <BaseModal open={open} onClose={onClose} title="Tambahkan Bot Father">
+    <BaseModal open={open} onClose={onClose}>
+      <p className="text-lg mb-4">Tambahkan Bot Father</p>
       <div className="space-y-4">
         <Input placeholder="Nama Bot" variant="secondary" />
         <Input placeholder="Masukkan Token Bot" variant="secondary" />

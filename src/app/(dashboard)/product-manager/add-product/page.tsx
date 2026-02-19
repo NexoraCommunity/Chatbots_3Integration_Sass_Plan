@@ -29,11 +29,11 @@ const page = () => {
       </div>
       <div className="inputan">
         <div className="product-name mt-6">
-          <p className="mb-2.5 text-xl">Nama product</p>
+          <p className="mb-2.5">Nama product</p>
           <Input placeholder="Masukan Nama Product" />
         </div>
         <div className="product-name mt-6">
-          <p className="mb-2.5 text-xl">Deskripsi product</p>
+          <p className="mb-2.5">Deskripsi product</p>
           <textarea
             name=""
             id=""
@@ -43,23 +43,23 @@ const page = () => {
         {/* 2 kolom input */}
         <div className="grid grid-cols-2 gap-x-15">
           <div className="product-name mt-6">
-            <p className="mb-2.5 text-xl">SKU product</p>
+            <p className="mb-2.5">SKU product</p>
             <Input placeholder="Masukan Nama Product" />
           </div>
           <div className="product-name mt-6">
-            <p className="mb-2.5 text-xl">Kategori product</p>
+            <p className="mb-2.5">Kategori product</p>
             <Input placeholder="Masukan Nama Product" />
           </div>
           <div className="product-name mt-6">
-            <p className="mb-2.5 text-xl">Berat product (optionaal)</p>
+            <p className="mb-2.5">Berat product (optionaal)</p>
             <Input placeholder="Masukan Nama Product" />
           </div>
           <div className="product-name mt-6">
-            <p className="mb-2.5 text-xl">Harga jual toko</p>
+            <p className="mb-2.5">Harga jual toko</p>
             <Input placeholder="Masukan Nama Product" />
           </div>
           <div className="product-name mt-6">
-            <p className="mb-2.5 text-xl">Stock Product (semua)</p>
+            <p className="mb-2.5">Stock Product (semua)</p>
             <Input placeholder="Masukan Nama Product" />
           </div>
         </div>
