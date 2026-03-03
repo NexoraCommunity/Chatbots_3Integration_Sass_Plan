@@ -6,7 +6,7 @@ import { Checkbox } from "@/src/components/ui/Checkbox";
 
 const AddBot = () => {
   return (
-    <div className="Add-agent mt-6 p-9 bg-white">
+    <div className="Add-agent p-9 bg-white">
       <div className="header">
         <h1 className="text-4xl font-medium text-[#01D2B3]">Add Bot</h1>
         <p className="text-[#655E5E] my-2">

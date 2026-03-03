@@ -46,8 +46,8 @@ export default function DashboardLayout({
       <div className="w-71.25 h-auto">
         <SideBar />
       </div>
-      <div className="flex-1 px-6 pb-6">
-        <div className="flex bg-white justify-between items-center rounded-lg shadow px-3">
+      <div className="flex-1 flex flex-col h-screen px-6">
+        <div className="flex bg-white justify-between items-center rounded-lg shadow px-3 sticky top-0 z-50">
           <div className="flex items-center w-full">
             <Icon icon="material-symbols:search" width={26} height={26} />
             <SearchBar variant="default" className="w-full ml-2" />
@@ -66,7 +66,7 @@ export default function DashboardLayout({
           </div>
         </div>
 
-        <div className="mt-6">{children}</div>
+        <div className="my-6 grow">{children}</div>
       </div>
     </div>
   );

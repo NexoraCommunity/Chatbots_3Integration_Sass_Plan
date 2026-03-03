@@ -4,7 +4,7 @@ import { Icon } from "@iconify/react";
 
 const page = () => {
   return (
-    <div className="mt-6 p-9 bg-white">
+    <div className="p-9 bg-white">
       <div className="header">
         <h1 className="text-4xl font-medium text-[#01D2B3]">Test Agent</h1>
         <p className="text-[#655E5E] my-2">

@@ -117,9 +117,9 @@ const page = () => {
         <div className="rounded-lg w-full h-auto bg-white shadow p-5">
           <p>Kestabilan Token</p>
           <div className="flex flex-col items-center justify-center mt-9">
-            <GaugeChart value={2000} />
+            <GaugeChart />
           </div>
-          <div className="flex flex-col items-center justify-around mt-9 gap-4">
+          <div className="flex flex-col items-center justify-around gap-2">
             <div className="grid grid-cols-2 w-full items-center gap-16">
               <p className="text-xl">optimal</p>
               <p className="text-xl text-green-500">2000 Token</p>

@@ -72,10 +72,12 @@ const page = () => {
         </div>
       </div>
       {/* Generate Variant */}
-      <div className="flex text-[#01D2B3]">
-        <Icon icon="ic:baseline-plus" width={24}/>
+      <div className="flex text-[#01D2B3] mt-15 gap-6 items-center cursor-pointer font-medium">
+        <Icon icon="ic:baseline-plus" width={24} />
         <p>Opsi Variant</p>
-        <p>Generate Variant</p>
+        <div className="py-2 px-4 bg-[#69F6E1] rounded-lg text-white">
+          <p>Generate Variant</p>
+        </div>
       </div>
     </div>
   );

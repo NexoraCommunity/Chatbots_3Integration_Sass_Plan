@@ -15,8 +15,8 @@ const Page = () => {
   };
 
   return (
-    <>
-      <div className="Add-product mt-6 py-4 bg-white items-center border-2 rounded-lg">
+    <div className="h-full flex flex-col">
+      <div className="Add-product py-4 bg-white items-center border-2 rounded-lg">
         <div className="flex justify-between items-center mx-9">
           <SearchBar
             placeholder="Search Products..."
@@ -83,7 +83,8 @@ const Page = () => {
           </>
         )}
       </div>
-      <div className="flex flex-col mt-3.5 py-4 bg-white w-full rounded-lg">
+      <div className="flex flex-col justify-between mt-3.5 my-4 bg-white w-full h-full rounded-lg">
+
         <div className="mx-9">
           <TableActions />
         </div>
@@ -91,12 +92,12 @@ const Page = () => {
           <p>
             Show Data <span className="border p-1 rounded">17</span> of 200
           </p>
-          <div className="flex justify-end">
+          <div className="flex self-end">
             <PaginationDemo />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

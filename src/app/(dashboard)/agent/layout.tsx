@@ -12,7 +12,7 @@ export default function PromptingLayout({
   const pathname = usePathname();
 
   return (
-    <div>
+    <div className="grow flex flex-col h-full">
       {pathname === "/agent/test-agent" ? (
         <></>
       ) : (

@@ -158,7 +158,7 @@ const SideBar = () => {
                 label={item.label}
                 href={item.href}
                 icon={item.icon}
-                active={activePath === item.href}
+                active={activePath.startsWith(item.href)}
               />
             );
           })}
@@ -173,7 +173,7 @@ const SideBar = () => {
                 label={item.label}
                 href={item.href}
                 icon={item.icon}
-                active={activePath === item.href}
+                active={activePath.startsWith(item.href)}
               />
             );
           })}
