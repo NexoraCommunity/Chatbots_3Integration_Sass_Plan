@@ -12,8 +12,12 @@ import Image from "next/image";
 const Page = () => {
   const router = useRouter();
   const { register, isLoading } = useAuthStore();
+
   const [error, setError] = useState("");
   const [dataRegister, setDataRegister] = useState<RegisterProps>({ firstName: '', lastName: '', email: '', password: '', repeatPassword: '' });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
   const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -85,25 +89,48 @@ const Page = () => {
               </div>
               <div className="w-full">
                 <p className="text-sm ml-2 mb-1.5">Masukan password anda</p>
-                <Input
-                  placeholder="Password"
-                  type="password"
-                  variant="secondary"
-                  onChange={(e) => setDataRegister({ ...dataRegister, password: e.target.value })}
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    placeholder="Password"
+                    type={showPassword ? "text" : "password"}
+                    variant="secondary"
+                    onChange={(e) => setDataRegister({ ...dataRegister, password: e.target.value })}
+                    required
+                  />
+                  <div className="absolute right-0 flex items-center justify-center h-12 bottom-0">
+
+                    <Icon
+                      icon={showPassword ? "mdi:eye-off" : "mdi:eye"}
+                      onClick={() => setShowPassword(!showPassword)}
+                      width={25}
+                      className="mr-5 text-[#575555] cursor-pointer"
+                    />
+                  </div>
+                </div>
               </div>
               <div className="w-full">
                 <p className="text-sm ml-2 mb-1.5">
                   Masukan ulang password anda
                 </p>
-                <Input
-                  placeholder="Confirm Password"
-                  required
-                  onChange={(e) => setDataRegister({ ...dataRegister, repeatPassword: e.target.value })}
-                  type="password"
-                  variant="secondary"
-                />
+                <div className="relative">
+
+                  <Input
+                    placeholder="Confirm Password"
+                    required
+                    onChange={(e) => setDataRegister({ ...dataRegister, repeatPassword: e.target.value })}
+                    type={showRepeatPassword ? "text" : "password"}
+                    variant="secondary"
+                  />
+                  <div className="absolute right-0 flex items-center justify-center h-12 bottom-0">
+
+                    <Icon
+                      icon={showRepeatPassword ? "mdi:eye-off" : "mdi:eye"}
+                      onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                      width={25}
+                      className="mr-5 text-[#575555] cursor-pointer"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

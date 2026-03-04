@@ -29,10 +29,10 @@ interface AuthState {
   register: (req: RegisterProps) => Promise<any>;
   otpCode: (req: OtpCodeProps) => Promise<any>;
   logout: () => void;
-  refreshToken: (refreshToken: string) => Promise<void>;
-  forgotPassword: (req: UpdatePassworduser) => Promise<void>;
-  verifPasswordOtp: (req: VerifPassword) => Promise<void>;
-  updateUser: (req: PostCurrentUser) => Promise<void>;
+  refreshToken: () => Promise<any>;
+  forgotPassword: (req: UpdatePassworduser) => Promise<any>;
+  verifPasswordOtp: (req: VerifPassword) => Promise<any>;
+  updateUser: (req: PostCurrentUser) => Promise<any>;
   getCurrentUser: () => Promise<any>;
 }
 

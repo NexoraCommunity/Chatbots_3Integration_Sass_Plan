@@ -93,7 +93,7 @@ export const verifPasswordOtp = async (req: VerifPassword) => {
 export const forgotPassword = async (req: UpdatePassworduser) => {
   const { id, ...user } = req;
   try {
-    const response = await axios.post(`/api-backend/api/user/password`, user, {
+    const response = await axios.post(`/api-backend/api/user/forgotpassword`, user, {
       withCredentials: true,
     });
     return response.data;

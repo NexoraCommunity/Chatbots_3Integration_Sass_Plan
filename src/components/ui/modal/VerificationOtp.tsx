@@ -13,8 +13,9 @@ const OtpModal: React.FC<{
   open: boolean;
   onClose: () => void;
   handleSubmit: (event: FormEvent<HTMLFormElement>, Otp: string) => void;
-}> = ({ open, onClose, handleSubmit }) => {
-  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
+  otp: string[];
+  setOtp: React.Dispatch<React.SetStateAction<string[]>>;
+}> = ({ open, onClose, handleSubmit, setOtp, otp }) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {

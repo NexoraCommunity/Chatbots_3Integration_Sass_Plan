@@ -12,28 +12,35 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { getCurrentUser } = useAuthStore();
+  const { getCurrentUser, refreshToken } = useAuthStore();
   const [isChecking, setIsChecking] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // useEffect(() => {
-  //   const verifyAuth = async () => {
-  //     try {
-  //       const data = await getCurrentUser();
-  //       if (data) {
-  //         setIsAuthenticated(true);
-  //       }
-  //     } catch (error) {
-  //       setIsAuthenticated(false);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
 
-  //   verifyAuth();
-  // }, [getCurrentUser]);
+
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const data = await getCurrentUser();
+        if (data) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        const data = await refreshToken();
+        if (!data) {
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(true);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifyAuth();
+  }, [getCurrentUser]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

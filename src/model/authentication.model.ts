@@ -22,21 +22,21 @@ export type PostCurrentUser = {
   picture?: string | null;
 };
 
-export type VerifPassword = {
+export type UpdatePassworduser = {
   id: string;
   email: string;
   password: string;
   codeOTP: string;
 };
-export type UpdatePassworduser = {
+export type VerifPassword = {
   id: string;
   email: string;
 };
 
 export type User = {
-  id: true;
-  firstName: true;
-  email: true;
-  lastName: true;
-  picture: true;
+  id: string;
+  firstName: string;
+  email: string;
+  lastName: string;
+  picture: string;
 };

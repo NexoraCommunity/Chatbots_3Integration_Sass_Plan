@@ -10,14 +10,27 @@ import { LoginProps, OtpCodeProps } from "@/src/model/authentication.model";
 import { useAuthStore } from "@/src/store/auth.store";
 import OtpModal from "@/src/components/ui/modal/VerificationOtp";
 import { GoogleOauth } from "@/src/services/api-auth/authentication.route";
+import { ForgotPasswordModal } from "@/src/components/ui/modal/ForgotPasswordModal";
+import { ChangeForgotPasswordModal } from "@/src/components/ui/modal/ChangeForgotPasswordModal";
 
 const Page = () => {
   const router = useRouter();
-  const { login, isLoading, otpCode, } = useAuthStore();
+  const { login, otpCode, verifPasswordOtp, forgotPassword, user } = useAuthStore();
   const [error, setError] = useState("");
   const [openOtp, setOpenOtp] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [datalogin, setDatalogin] = useState<LoginProps>({ email: '', password: '' });
-  
+
+  const [otpLogin, setOtpLogin] = useState<string[]>(new Array(6).fill(""));
+  const [otpForgotPassword, setOtpForgotPassword] = useState<string[]>(new Array(6).fill(""));
+
+
+
+  const [forgotPasswordModal, setForgotPasswordModal] = useState({ otp: false, verif: false, update: false });
+  const [dataForgotPassword, setDataForgotPassword] = useState({ id: '', email: '' });
+  const [changeForgotPassword, setChangeForgotPassword] = useState({ id: '', email: '', codeOTP: '', password: "" });
+
+
   const handleClickGoogle = async () => {
     await GoogleOauth()
   }
@@ -39,8 +52,6 @@ const Page = () => {
 
   const handleOnSubmitOtp = async (e: React.FormEvent<HTMLFormElement>, Otp: string) => {
     e.preventDefault();
-
-    console.log(Otp)
     try {
       const otp: OtpCodeProps = {
         email: datalogin.email,
@@ -57,9 +68,70 @@ const Page = () => {
     }
   }
 
+  const handleOnSubmitSendOtpForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await verifPasswordOtp(dataForgotPassword);
+      if (response) {
+        setForgotPasswordModal({ ...forgotPasswordModal, verif: false, otp: true })
+        setDataForgotPassword({ ...dataForgotPassword, id: user?.id || '' })
+      }
+
+    } catch (error: any) {
+      console.log(error)
+    }
+  }
+  const handleSubmitOtpForgotPassword = async (e: React.FormEvent<HTMLFormElement>, Otp: string) => {
+    e.preventDefault();
+    try {
+      setForgotPasswordModal({ ...forgotPasswordModal, verif: false, otp: false, update: true })
+      setChangeForgotPassword({ ...changeForgotPassword, codeOTP: Otp, id: user?.id || '' })
+    } catch (error: any) {
+      console.log(error)
+    }
+  }
+
+  const handleOnSubmitVerifForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await forgotPassword(changeForgotPassword);
+      if (response) {
+        setForgotPasswordModal({ ...forgotPasswordModal, verif: false, otp: true })
+      }
+
+    } catch (error: any) {
+      console.log(error)
+    }
+  }
+
   return (
     <div className="flex w-full h-screen items-center overflow-hidden">
-      <OtpModal open={openOtp} onClose={() => setOpenOtp(false)} handleSubmit={handleOnSubmitOtp} />
+      <OtpModal
+        open={openOtp} onClose={() => setOpenOtp(false)}
+        otp={otpLogin} setOtp={setOtpLogin}
+        handleSubmit={handleOnSubmitOtp} />
+
+      <OtpModal
+        open={forgotPasswordModal.otp}
+        onClose={() => setForgotPasswordModal({ ...forgotPasswordModal, otp: false })}
+        handleSubmit={handleSubmitOtpForgotPassword}
+        otp={otpForgotPassword}
+        setOtp={setOtpForgotPassword} />
+
+      <ForgotPasswordModal open={forgotPasswordModal.verif}
+        onClose={() => setForgotPasswordModal({ ...forgotPasswordModal, verif: false })}
+        handleSubmit={handleOnSubmitSendOtpForgotPassword}
+        dataForgotPassword={dataForgotPassword}
+        setDataForgotPassword={setDataForgotPassword} />
+
+      <ChangeForgotPasswordModal
+        open={forgotPasswordModal.update}
+        handleSubmit={handleOnSubmitVerifForgotPassword}
+        dataChangeForgotPassword={changeForgotPassword}
+        setDataChangeForgotPassword={setChangeForgotPassword}
+        onClose={() => setForgotPasswordModal({ ...forgotPasswordModal, update: false })} />
       {/* left side */}
       <div className="flex flex-col items-center w-1/2 p-20">
         <h3 className="text-[#525252] text-4xl font-bold my-5">
@@ -92,7 +164,7 @@ const Page = () => {
                 <p className="text-sm ml-2 mb-1.5">Password</p>
                 <Input
                   placeholder="Masukan Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   variant="secondary"
                   onChange={(e) => setDatalogin({ ...datalogin, password: e.target.value })}
 
@@ -100,14 +172,15 @@ const Page = () => {
                 <div className="absolute right-0 flex items-center justify-center h-12 bottom-0">
 
                   <Icon
-                    icon="mdi:eye"
+                    icon={showPassword ? "mdi:eye-off" : "mdi:eye"}
+                    onClick={() => setShowPassword(!showPassword)}
                     width={25}
                     className="mr-5 text-[#575555] cursor-pointer"
                   />
                 </div>
               </div>
               <div className="mt-2 text-[#01D2B3] text-sm  cursor-pointer">
-                <p>Lupa Password?</p>
+                <p onClick={() => setForgotPasswordModal({ ...forgotPasswordModal, verif: true })}>Lupa Password?</p>
               </div>
             </div>
             <div className="mt-5">
