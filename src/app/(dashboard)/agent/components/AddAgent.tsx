@@ -58,25 +58,35 @@ const AddAgent = () => {
       <div className="search-product mt-10 border rounded-lg p-5">
         <SearchBar
           placeholder="Search Product..."
-          className="border rounded-lg"
-          variant="custom"
+          className="border rounded-lg p-3 w-full"
+          variant="miniDefault"
         />
         <div className="image-selection mt-5 grid grid-cols-5 gap-5">
           {/* Image options would go here */}
-          <div className="w-full h-full border rounded-xsl flex justify-center items-center">
-            kotak gambar nich
+          <div className="relative w-full h-50 border rounded-xsl flex justify-center items-center bg-muted-foreground">
+            <div className="absolute top-1 right-1">
+            <Checkbox />
+            </div>
           </div>
-          <div className="w-full h-full border rounded-xsl flex justify-center items-center">
-            kotak gambar nich
+          <div className="relative w-full h-50 border rounded-xsl flex justify-center items-center bg-muted-foreground">
+            <div className="absolute top-1 right-1">
+            <Checkbox />
+            </div>
           </div>
-          <div className="w-full h-full border rounded-xsl flex justify-center items-center">
-            kotak gambar nich
+          <div className="relative w-full h-50 border rounded-xsl flex justify-center items-center bg-muted-foreground">
+            <div className="absolute top-1 right-1">
+            <Checkbox />
+            </div>
           </div>
-          <div className="w-full h-full border rounded-xsl flex justify-center items-center">
-            kotak gambar nich
+          <div className="relative w-full h-50 border rounded-xsl flex justify-center items-center bg-muted-foreground">
+            <div className="absolute top-1 right-1">
+            <Checkbox />
+            </div>
           </div>
-          <div className="w-full h-full border rounded-xsl flex justify-center items-center">
-            kotak gambar nich
+          <div className="relative w-full h-50 border rounded-xsl flex justify-center items-center bg-muted-foreground">
+            <div className="absolute top-1 right-1">
+            <Checkbox />
+            </div>
           </div>
         </div>
 
