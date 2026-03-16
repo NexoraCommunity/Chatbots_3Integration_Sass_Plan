@@ -22,7 +22,7 @@ export default function BaseModal({
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-1/3 bg-white rounded-xl p-6 shadow-lg">
+      <div className="relative z-50 w-full max-w-1/3 bg-white rounded-xl p-6 shadow-lg">
         {children}
       </div>
     </div>

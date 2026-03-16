@@ -21,7 +21,7 @@ const AddBot = () => {
           <Input placeholder="Masukkan Nama Bot" variant="secondary" />
         </div>
         <div className="mt-6">
-          <h1 className="">Pilih Agent yang akan digunakan !</h1>
+          <h1 className="mb-2.5">Pilih Agent yang akan digunakan !</h1>
           <div className="checklist-agent grid grid-cols-3 gap-4">
             <Cards className="border border-[#575555]">
               <div className="headerAgentCard flex justify-between py-3 px-3.5 items-center">
@@ -91,7 +91,7 @@ const AddBot = () => {
               </Cards>
             </div>
           </div>
-          <div className="selection-info flex items-center justify-end mt-5 p-5 bg-[#01D2B3] rounded-lg text-gray-500 font-medium">
+          <div className="selection-info sticky bottom-2 flex items-center justify-end mt-5 p-5 bg-[#01D2B3] rounded-lg text-gray-500 font-medium">
             <div className="flex">
               <Button variant="custom" label="Tambahkan Bot" />
             </div>

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/src/components/ui/Button";
-import { AddBotFatherModal } from "../../../../components/ui/modal/AddBotFatherModal";
+import { AddBotFatherModal } from "../../../../../components/ui/modal/AddBotFatherModal";
 
 
 const Page = () => {

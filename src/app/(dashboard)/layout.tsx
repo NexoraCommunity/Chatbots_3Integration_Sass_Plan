@@ -18,22 +18,22 @@ export default function DashboardLayout({
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // useEffect(() => {
-  //   const verifyAuth = async () => {
-  //     try {
-  //       const data = await getCurrentUser();
-  //       if (data) {
-  //         setIsAuthenticated(true);
-  //       }
-  //     } catch (error) {
-  //       setIsAuthenticated(false);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const data = await getCurrentUser();
+        if (data) {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  //   verifyAuth();
-  // }, [getCurrentUser]);
+    verifyAuth();
+  }, [getCurrentUser]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

@@ -94,7 +94,7 @@ const AddAgent = () => {
           <Checkbox /> Pilih Semua
         </div>
       </div>
-      <div className="selection-info flex justify-between items-center mt-5 p-5 bg-[#01D2B3] rounded-lg text-gray-500 font-medium">
+      <div className="selection-info sticky bottom-2 flex justify-between items-center mt-5 p-5 bg-[#01D2B3] rounded-lg text-gray-500 font-medium">
         <div>3 Produk terpilih</div>
         <div className="flex gap-6">
           <Button variant="custom" label="Batalkan semua" />

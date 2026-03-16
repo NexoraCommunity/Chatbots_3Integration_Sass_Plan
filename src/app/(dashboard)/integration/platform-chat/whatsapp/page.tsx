@@ -4,12 +4,12 @@ import { Input } from "@/src/components/ui/Input";
 import { Cards } from "@/src/components/ui/Cards";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
-import { AddWhatsappNumberModal } from "../../../../components/ui/modal/AddWhatsappNumberModal";
+import { AddWhatsappNumberModal } from "../../../../../components/ui/modal/AddWhatsappNumberModal";
 
 const Page = () => {
   const [openModal, setOpenModal] = useState(false);
   return (
-    <div className="mt-6 p-9 bg-white">
+    <div className="p-9 min-h-full flex flex-col relative bg-white">
       <div className="header">
         <h1 className="text-4xl font-medium text-[#01D2B3]">
           Whatsapp Bussiness Integration
@@ -27,7 +27,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 grow">
         <h1 className="mb-2.5">Pilih Platform yang akan digunakan !</h1>
         <div className="grid grid-cols-3 gap-6 mb-5">
           <Cards className="p-5 border border-[#575555]">
@@ -60,7 +60,7 @@ const Page = () => {
           </Cards>
         </div>
       </div>
-      <div className="selection-info flex items-center justify-end mt-5 p-5 bg-[#01D2B3] rounded-lg text-gray-500 font-medium">
+      <div className="selection-info sticky bottom-0 z-tinggi flex items-center justify-end mt-5 p-5 bg-[#01D2B3] rounded-lg text-gray-500 font-medium">
         <div className="flex">
           <Button
             variant="custom"
