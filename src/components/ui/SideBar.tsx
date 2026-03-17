@@ -79,9 +79,7 @@ const mainMenu = [
 
 const integrationSubMenu = [
   { labelSub: "Activation", subHref: "/integration/activation" },
-  { labelSub: "Whatsapp", subHref: "/integration/whatsapp" },
-  { labelSub: "Telegram", subHref: "/integration/telegram" },
-  { labelSub: "Website", subHref: "/integration/website" },
+  { labelSub: "Platform Chat", subHref: "/integration/platform-chat"},
 ];
 
 // Page
