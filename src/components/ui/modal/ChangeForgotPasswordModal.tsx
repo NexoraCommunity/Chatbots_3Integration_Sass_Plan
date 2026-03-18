@@ -4,7 +4,7 @@ import BaseModal from "./BaseModal";
 import { Input } from "@/src/components/ui/Input";
 import { Button } from "@/src/components/ui/Button";
 import { FormEvent } from "react";
-import { UpdatePassworduser } from "@/src/model/authentication.model";
+import { UpdatePassworduser } from "@/src/model/authentication/authentication.model";
 
 interface ChangeForgotPasswordModalProps {
     open: boolean;

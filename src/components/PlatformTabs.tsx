@@ -15,7 +15,7 @@ const PlatformTabs = () => {
   const router = useRouter();
 
   return (
-    <div className="flex gap-8 border-b border-gray-100">
+    <div className="flex gap-8 border-b border-gray-100 mb-6">
       {tabs.map((tab) => {
         const isActive = pathname.startsWith(tab.path);
         return (

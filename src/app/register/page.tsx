@@ -5,8 +5,8 @@ import { Input } from "@/src/components/ui/Input";
 import { useRouter } from "next/navigation";
 import { SwitchTabs } from "@/src/components/SwitchTabs";
 import { Icon } from "@iconify/react";
-import { RegisterProps } from "@/src/model/authentication.model";
-import { useAuthStore } from "@/src/store/auth.store";
+import { RegisterProps } from "@/src/model/authentication/authentication.model";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -197,7 +197,7 @@ const Page = () => {
               </button>
             </div>
           </div>
-          
+
           <p className="mt-8 text-center text-sm text-muted-foreground poppins-regular">
             Already have an account? <button onClick={() => router.push('/login')} className="text-primary font-bold hover:underline">Sign in</button>
           </p>

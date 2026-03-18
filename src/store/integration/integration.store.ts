@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getAllIntegration } from "../services/integration/integration.route";
+import { getAllIntegration } from "../../services/integration/integration.route";
 
 interface IntegrationState {
   getAllIntegration: () => Promise<any>;

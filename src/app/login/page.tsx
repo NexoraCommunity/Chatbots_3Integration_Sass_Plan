@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { SwitchTabs } from "@/src/components/SwitchTabs";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { LoginProps, OtpCodeProps } from "@/src/model/authentication.model";
-import { useAuthStore } from "@/src/store/auth.store";
+import { LoginProps, OtpCodeProps } from "@/src/model/authentication/authentication.model";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
 import OtpModal from "@/src/components/ui/modal/VerificationOtp";
 import { GoogleOauth } from "@/src/services/api-auth/authentication.route";
 import { ForgotPasswordModal } from "@/src/components/ui/modal/ForgotPasswordModal";
@@ -209,6 +209,7 @@ const Page = () => {
               <Button
                 label="Sign In"
                 variant="primary"
+                type="submit"
                 fullWidth
                 className="h-12 rounded-xl font-bold poppins-semibold shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all active:scale-[0.98]"
               />
@@ -230,7 +231,7 @@ const Page = () => {
               </button>
             </div>
           </div>
-          
+
           <p className="mt-8 text-center text-sm text-muted-foreground poppins-regular">
             Don't have an account? <button onClick={() => router.push('/register')} className="text-primary font-bold hover:underline">Sign up for free</button>
           </p>

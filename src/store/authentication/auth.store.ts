@@ -7,7 +7,7 @@ import type {
   UpdatePassworduser,
   User,
   VerifPassword,
-} from "@/src/model/authentication.model";
+} from "@/src/model/authentication/authentication.model";
 import {
   forgotPassword,
   getCurrentUser,
@@ -18,7 +18,7 @@ import {
   Register,
   updateUser,
   verifPasswordOtp,
-} from "../services/api-auth/authentication.route";
+} from "../../services/api-auth/authentication.route";
 
 interface AuthState {
   user: User | null;

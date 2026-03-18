@@ -55,8 +55,6 @@ const Page = () => {
               <TableHeader className="bg-gray-50/50">
                 <TableRow className="hover:bg-transparent border-gray-100">
                   <TableHead className="py-5 px-8 text-[11px] font-bold text-gray-400 uppercase tracking-widest poppins-bold">Name</TableHead>
-                  <TableHead className="py-5 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest poppins-bold">Secret Key</TableHead>
-                  <TableHead className="py-5 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest poppins-bold">Client Key</TableHead>
                   <TableHead className="py-5 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest poppins-bold">Webhook URL</TableHead>
                   <TableHead className="py-5 px-6 text-[11px] font-bold text-gray-400 uppercase tracking-widest poppins-bold">Created At</TableHead>
                   <TableHead className="py-5 px-8 text-right text-[11px] font-bold text-gray-400 uppercase tracking-widest poppins-bold w-[120px]">Action</TableHead>
@@ -72,16 +70,6 @@ const Page = () => {
                          </div>
                          <span className="text-base font-bold text-gray-900 poppins-bold tracking-tight">{config.name}</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="py-6 px-6">
-                      <code className="text-xs text-gray-500 poppins-medium bg-gray-50 px-2 py-1 rounded border border-gray-100">
-                        {config.secretKey}
-                      </code>
-                    </TableCell>
-                    <TableCell className="py-6 px-6">
-                       <code className="text-xs text-gray-500 poppins-medium bg-gray-50 px-2 py-1 rounded border border-gray-100">
-                        {config.clientKey}
-                      </code>
                     </TableCell>
                     <TableCell className="py-6 px-6">
                       <span className="text-sm text-gray-500 poppins-medium truncate max-w-[200px]" title={config.webhookUrl}>

@@ -4,8 +4,9 @@ import { Button } from "@/src/components/ui/Button";
 import { Cards, CardContent } from "@/src/components/ui/Cards";
 import { Badge } from "@/src/components/ui/Badge";
 import { Icon } from "@iconify/react";
-import { useIntegrationStore } from "@/src/store/integration.store";
-import { Integration } from "@/src/model/integration.model";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
+import { UserIntegration } from "@/src/model/integration/userIntegration.model";
 import { cn } from "@/lib/utils";
 
 // --- Internal Components ---
@@ -31,14 +32,28 @@ const IconMap = ({ name, className }: { name: string; className?: string }) => {
   );
 };
 
-const IntegrationCard = ({ integration }: { integration: Integration }) => {
+const IntegrationCard = ({
+  integration,
+  onActivate,
+  isActivating
+}: {
+  integration: UserIntegration;
+  onActivate: (integration: UserIntegration) => void;
+  isActivating: boolean;
+}) => {
   return (
     <Cards className="group relative border-none bg-white p-1 hover:shadow-xl transition-all duration-300">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <IconMap name={integration.name} />
-          <Badge variant="outline" className="opacity-0 group-hover:opacity-100 transition-opacity">
-            Available
+          <Badge
+            variant={integration.isconnected ? "success" : "outline"}
+            className={cn(
+              "transition-all duration-300",
+              !integration.isconnected && "opacity-0 group-hover:opacity-100"
+            )}
+          >
+            {integration.isconnected ? "Connected" : "Available"}
           </Badge>
         </div>
 
@@ -47,15 +62,20 @@ const IntegrationCard = ({ integration }: { integration: Integration }) => {
             {integration.name}
           </h3>
           <p className="text-sm text-muted-foreground poppins-regular leading-relaxed line-clamp-2">
-            Connect your {integration.name} account to sync data and automate your workflow with ease.
+            {integration.description || `Connect your ${integration.name} account to sync data and automate your workflow with ease.`}
           </p>
         </div>
 
         <div className="flex items-center justify-end pt-4 border-t border-border/50">
           <Button
-            variant="primary"
-            label="Activate"
-            className="rounded-xl px-6 h-10 font-semibold poppins-medium shadow-sm active:scale-95 transition-all"
+            variant={integration.isconnected ? "secondary" : "primary"}
+            label={isActivating ? "Activating..." : integration.isconnected ? "Activated" : "Activate"}
+            onClick={() => !integration.isconnected && onActivate(integration)}
+            disabled={isActivating || integration.isconnected}
+            className={cn(
+              "rounded-xl px-6 h-10 font-semibold poppins-medium transition-all",
+              !integration.isconnected && "active:scale-95 shadow-sm"
+            )}
           />
         </div>
       </CardContent>
@@ -63,7 +83,19 @@ const IntegrationCard = ({ integration }: { integration: Integration }) => {
   );
 };
 
-const IntegrationSection = ({ title, integrations, icon }: { title: string; integrations: Integration[]; icon: string }) => {
+const IntegrationSection = ({
+  title,
+  integrations,
+  icon,
+  onActivate,
+  activatingId
+}: {
+  title: string;
+  integrations: UserIntegration[];
+  icon: string;
+  onActivate: (integration: UserIntegration) => void;
+  activatingId: string | null;
+}) => {
   if (integrations.length === 0) return null;
 
   return (
@@ -76,7 +108,12 @@ const IntegrationSection = ({ title, integrations, icon }: { title: string; inte
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
         {integrations.map((item) => (
-          <IntegrationCard key={item.id} integration={item} />
+          <IntegrationCard
+            key={item.id}
+            integration={item}
+            onActivate={onActivate}
+            isActivating={activatingId === item.id}
+          />
         ))}
       </div>
     </section>
@@ -86,24 +123,39 @@ const IntegrationSection = ({ title, integrations, icon }: { title: string; inte
 // --- Main Page ---
 
 const Page = () => {
-  const { getAllIntegration } = useIntegrationStore();
-  const [integrationData, setIntegrationData] = useState<Integration[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { fetchUserIntegrations, updateUserIntegration, userIntegrations, isLoading } = useUserIntegrationStore();
+  const { user } = useAuthStore();
+  const [activatingId, setActivatingId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllIntegration();
-        setIntegrationData(data?.data || []);
-      } catch (error) {
-        console.error("Error fetching integration data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [getAllIntegration]);
+    if (user?.id) {
+      fetchUserIntegrations(user.id).catch((err) => {
+        console.error("Failed to fetch integrations", err);
+      });
+    }
+  }, [user?.id, fetchUserIntegrations]);
+
+  const handleActivate = async (integration: UserIntegration) => {
+    if (!user?.id) {
+      console.error("User not found. Please log in again.");
+      return;
+    }
+
+    try {
+      setActivatingId(integration.id);
+      await updateUserIntegration({
+        integrationId: integration.integrationId,
+        provider: integration.name.toLowerCase().replace(/\s+/g, ""),
+        isconnected: true,
+        userId: user.id,
+      });
+      console.log(`${integration.name} activated successfully!`);
+    } catch (error: any) {
+      console.error(error?.message || `Failed to activate ${integration.name}`);
+    } finally {
+      setActivatingId(null);
+    }
+  };
 
   const categories = useMemo(() => [
     { title: "Chat Platforms", type: "chatPlatform", icon: "lucide:message-square" },
@@ -111,13 +163,16 @@ const Page = () => {
     { title: "Shipping & Logistics", type: "shipping", icon: "lucide:truck" },
   ], []);
 
-  if (loading) {
+  if (isLoading && userIntegrations.length === 0) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <Icon icon="lucide:loader-2" width={40} className="animate-spin text-primary" />
       </div>
     );
   }
+
+  { console.log(userIntegrations) }
+
 
   return (
     <div className="max-w-[1600px] mx-auto pt-4 pb-20">
@@ -127,14 +182,15 @@ const Page = () => {
           Expand your ecosystem by connecting third-party services. Seamlessly manage chats, payments, and shipping.
         </p>
       </div>
-
       <div className="space-y-4">
         {categories.map((category) => (
           <IntegrationSection
             key={category.type}
             title={category.title}
             icon={category.icon}
-            integrations={integrationData.filter((i) => i.type === category.type)}
+            integrations={userIntegrations.filter((i) => i.type === category.type)}
+            onActivate={handleActivate}
+            activatingId={activatingId}
           />
         ))}
       </div>

@@ -6,7 +6,7 @@ import {
   RegisterProps,
   UpdatePassworduser,
   VerifPassword,
-} from "@/src/model/authentication.model";
+} from "@/src/model/authentication/authentication.model";
 
 export const Register = async (data: RegisterProps) => {
   try {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Integration } from "../../model/integration.model";
+import { Integration } from "../../model/integration/integration.model";
 
 export const getAllIntegration = async (): Promise<Integration[]> => {
   try {

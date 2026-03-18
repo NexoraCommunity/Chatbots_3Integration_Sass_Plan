@@ -4,9 +4,9 @@ import { SearchBar } from "@/src/components/ui/SearchBar";
 import SideBar from "@/src/components/ui/SideBar";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuthStore } from "@/src/store/auth.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
 import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/src/store/sidebar.store";
+import { useSidebarStore } from "@/src/store/ui/sidebar.store";
 
 export default function DashboardLayout({
   children,

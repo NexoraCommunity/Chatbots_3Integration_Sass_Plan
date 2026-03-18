@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ViewProfileModal } from "./modal/ViewProfileModal";
 import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/src/store/sidebar.store";
+import { useSidebarStore } from "@/src/store/ui/sidebar.store";
 
 const botMenu = [
   {

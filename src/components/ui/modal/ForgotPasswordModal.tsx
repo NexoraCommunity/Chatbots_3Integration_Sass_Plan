@@ -3,7 +3,7 @@
 import BaseModal from "./BaseModal";
 import { Input } from "@/src/components/ui/Input";
 import { Button } from "@/src/components/ui/Button";
-import { VerifPassword } from "@/src/model/authentication.model";
+import { VerifPassword } from "@/src/model/authentication/authentication.model";
 
 interface ForgotPasswordModalProps {
     open: boolean;
