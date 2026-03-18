@@ -12,41 +12,24 @@ export default function PromptingLayout({
   const pathname = usePathname();
 
   return (
-    <div className="grow flex flex-col h-full">
-      {pathname === "/agent/test-agent" ? (
-        <></>
-      ) : (
-        <>
-          <div className="flex gap-4 items-center justify-between">
-            {pathname !== "/agent/add-agent" ? (
-              <>
-                <p className="text-4xl text-[#655E5E] font-semibold">Agent</p>
-                <div className="flex gap-4">
-                  <Button
-                    label="Agent List"
-                    moveTo="/agent"
-                    variant={pathname === "/agent" ? "primary" : "secondary"}
-                    icon={<Icon icon="mingcute:edit-2-fill" width={20} />}
-                    iconPosition="left"
-                    className="gap-2.5 px-9"
-                  />
-                  <Button
-                    label="Add Prompt"
-                    moveTo="/agent/add-agent"
-                    variant={
-                      pathname === "/agent/add-agent" ? "primary" : "secondary"
-                    }
-                    icon={<Icon icon="mdi:plus" width={20} />}
-                    iconPosition="left"
-                    className="gap-2.5 px-9"
-                  />
-                </div>
-              </>
-            ) : (
-              <></>
-            )}
+    <div className="grow flex flex-col space-y-6">
+      {pathname !== "/agent/test-agent" && pathname !== "/agent/add-agent" && (
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold poppins-bold text-foreground mb-2">Agent Management</h1>
           </div>
-        </>
+
+          <div className="flex gap-4 w-full sm:w-auto">
+            <Button
+              label="Add New Agent"
+              moveTo="/agent/add-agent"
+              variant="primary"
+              icon={<Icon icon="solar:add-circle-bold-duotone" width={20} />}
+              iconPosition="left"
+              className="w-full sm:w-auto gap-2 px-6 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+            />
+          </div>
+        </div>
       )}
       {children}
     </div>

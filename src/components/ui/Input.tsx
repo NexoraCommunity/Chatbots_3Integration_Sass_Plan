@@ -1,21 +1,15 @@
+import React, { InputHTMLAttributes } from "react";
 
-
-interface InputProps {
-  placeholder: string;
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   variant?: "primary" | "secondary" | "default" | "custom" | "miniDefault";
-  type?: "text" | "password" | "email" | "file";
   icon?: string;
-  className?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  required?: boolean;
 }
+
 const Input = ({
   placeholder,
-  type = "text",
   variant = "primary",
   className,
-  onChange: onchange,
-  required = false
+  ...props
 }: InputProps) => {
   const variants = {
     primary:
@@ -25,13 +19,12 @@ const Input = ({
     miniDefault: "focus:outline-none focus:border-none",
     custom: "",
   };
+
   return (
     <input
-      type={type}
+      {...props}
       placeholder={placeholder}
-      className={`${variants[variant]} w-full ${className}`}
-      onChange={onchange}
-      required={required}
+      className={`${variants[variant]} w-full ${className ?? ""}`}
     />
   );
 };

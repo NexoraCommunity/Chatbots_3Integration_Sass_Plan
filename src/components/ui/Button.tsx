@@ -1,74 +1,100 @@
 "use client";
 
+import React, { forwardRef, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ReactNode } from "react";
 
-interface ButtonProps {
-  label: string;
-  variant?: "primary" | "secondary" | "default" | "custom";
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  label?: string;
+  children?: ReactNode;
+  variant?: "primary" | "secondary" | "default" | "custom" | "ghost";
   moveTo?: string;
   fullWidth?: boolean;
   icon?: ReactNode;
   iconPosition?: "left" | "right" | "mid";
-  className?: string;
-  onClick?: () => void;
+  size?: "sm" | "md" | "lg";
 }
 
-const Button = ({
-  label,
-  variant = "primary",
-  moveTo,
-  fullWidth,
-  icon,
-  iconPosition,
-  onClick,
-  className,
-}: ButtonProps) => {
-  const router = useRouter();
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      label,
+      children,
+      variant = "primary",
+      moveTo,
+      fullWidth,
+      icon,
+      iconPosition,
+      onClick,
+      className,
+      disabled,
+      type = "button",
+      size = "md",
+      ...props
+    },
+    ref
+  ) => {
+    const router = useRouter();
 
-  const baseStyles =
-    "text-lg flex justify-center items-center transition active:scale-95 cursor-pointer";
+    const baseStyles =
+      "flex justify-center items-center transition active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
 
-  const variants = {
-    primary: "bg-[#27C5FF] p-3 text-white rounded-xl",
-    secondary: "bg-gray-300 text-[#655E5E] rounded-xl",
-    default: "p-3 rounded-full rounded-full bg-[#01D2B3]",
-    custom: "",
-  };
+    const sizeStyles = {
+      sm: "px-3 py-1.5 text-xs",
+      md: "p-3 text-lg",
+      lg: "p-4 text-xl",
+    };
 
-  const handleMoveTo = () => {
-    if (onClick) return onClick();
-    if (moveTo) router.push(moveTo);
-  };
+    const variants = {
+      primary: "bg-[#27C5FF] text-white rounded-xl",
+      secondary: "bg-gray-300 text-[#655E5E] rounded-xl",
+      default: "rounded-full bg-[#01D2B3]",
+      custom: "",
+      ghost: "bg-transparent hover:bg-gray-50 text-gray-400 rounded-lg",
+    };
 
-  return (
-    <button
-      onClick={handleMoveTo}
-      className={`
-    relative
-    ${baseStyles}
-    ${variants[variant]}
-    ${fullWidth ? "w-full" : ""}
-    ${className ?? ""}
-  `}
-    >
-      {/* LEFT */}
-      {icon && iconPosition === "left" && <span className="mr-2">{icon}</span>}
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (onClick) onClick(e);
+      if (moveTo && !onClick) router.push(moveTo);
+    };
 
-      {/* LABEL */}
-      <span className={iconPosition === "mid" ? "opacity-0" : ""}>{label}</span>
+    return (
+      <button
+        ref={ref}
+        type={type}
+        disabled={disabled}
+        onClick={handleClick}
+        className={`
+          relative
+          ${baseStyles}
+          ${sizeStyles[size]}
+          ${variants[variant]}
+          ${fullWidth ? "w-full" : ""}
+          ${className ?? ""}
+        `}
+        {...props}
+      >
+        {/* LEFT */}
+        {icon && iconPosition === "left" && <span className="mr-2">{icon}</span>}
 
-      {/* MID */}
-      {icon && iconPosition === "mid" && (
-        <span className="absolute inset-0 flex items-center justify-center">
-          {icon}
-        </span>
-      )}
+        {/* CONTENT (LABEL or CHILDREN) */}
+        <div className={`flex items-center gap-2 ${iconPosition === "mid" ? "opacity-0" : ""}`}>
+          {children || <span>{label}</span>}
+        </div>
 
-      {/* RIGHT */}
-      {icon && iconPosition === "right" && <span className="ml-2">{icon}</span>}
-    </button>
-  );
-};
+        {/* MID */}
+        {icon && iconPosition === "mid" && (
+          <span className="absolute inset-0 flex items-center justify-center">
+            {icon}
+          </span>
+        )}
+
+        {/* RIGHT */}
+        {icon && iconPosition === "right" && <span className="ml-2">{icon}</span>}
+      </button>
+    );
+  }
+);
+
+Button.displayName = "Button";
 
 export { Button };

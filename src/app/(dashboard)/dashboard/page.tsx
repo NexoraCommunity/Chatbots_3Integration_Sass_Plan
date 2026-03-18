@@ -1,180 +1,156 @@
-import { Switch } from "@/components/ui/switch";
+import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
 import BarChartDashboard from "@/src/components/ui/BarChart";
 import { Checkbox } from "@/src/components/ui/Checkbox";
 import GaugeChart from "@/src/components/ui/GaugeChart";
+import { Switch } from "@/src/components/ui/Switch";
 import { Icon } from "@iconify/react";
 import React from "react";
 
 const page = () => {
+  const stats = [
+    { label: "Total Bot Aktif", value: "10 Bot", icon: "fluent:bot-24-filled", color: "text-primary", bg: "bg-primary/10" },
+    { label: "Total Agent", value: "5 Agent", icon: "solar:users-group-rounded-bold-duotone", color: "text-purple-500", bg: "bg-purple-50" },
+    { label: "Total Pesan", value: "250 Pesan", icon: "solar:chat-round-dots-bold-duotone", color: "text-blue-500", bg: "bg-blue-50" },
+    { label: "Penggunaan Token", value: "970 Token", icon: "solar:wallet-money-bold-duotone", color: "text-amber-500", bg: "bg-amber-50" },
+  ];
+
   return (
-    <div>
+    <div className="space-y-8">
       {/* Statistik */}
-      <div className="grid grid-cols-4 gap-5 text-[#655E5E]">
-        <div className="flex flex-col justify-between rounded-lg w-full h-50 bg-white shadow p-5 hover:bg-linear-to-r from-[#61EFDA] to-[#98FFF0] cursor-pointer">
-          <div className="flex gap-4 items-center">
-            <span className="bg-white rounded-xl w-10 h-10 flex justify-center items-center">
-              <Icon icon="fluent:bot-24-filled" width={20} />
-            </span>
-            <p>Total Bot Aktif</p>
-          </div>
-          <p className="text-[40px]">10 Bot</p>
-        </div>
-        <div className="flex flex-col justify-between rounded-lg w-full h-50 bg-white shadow p-5 hover:bg-linear-to-r from-[#61EFDA] to-[#98FFF0] cursor-pointer">
-          <div className="flex gap-4 items-center">
-            <span className="bg-white rounded-xl w-10 h-10 flex justify-center items-center">
-              <Icon
-                icon="material-symbols:interactive-space"
-                width={20}
-                className="bg-white rounded-xl"
-              />
-            </span>
-            <p>Total Agent</p>
-          </div>
-          <p className="text-[40px]">5 Agent</p>
-        </div>
-        <div className="flex flex-col justify-between rounded-lg w-full h-50 bg-white shadow p-5 hover:bg-linear-to-r from-[#61EFDA] to-[#98FFF0] cursor-pointer">
-          <div className="flex gap-4 items-center">
-            <span className="bg-white rounded-xl w-10 h-10 flex justify-center items-center">
-              <Icon
-                icon="tabler:message-filled"
-                width={20}
-                className="bg-white rounded-xl"
-              />
-            </span>
-            <p>Total Pesan</p>
-          </div>
-          <p className="text-[40px]">250 Pesan</p>
-        </div>
-        <div className="flex flex-col justify-between rounded-lg w-full h-50 bg-white shadow p-5 hover:bg-linear-to-r from-[#61EFDA] to-[#98FFF0] cursor-pointer">
-          <div className="flex gap-4 items-center">
-            <span className="bg-white rounded-xl w-10 h-10 flex justify-center items-center">
-              <Icon
-                icon="streamline-ultimate:monetization-touch-coin-bold"
-                width={20}
-                className="bg-white rounded-xl"
-              />
-            </span>
-            <p>Penggunaan Token</p>
-          </div>
-          <p className="text-[40px]">970 Token</p>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {stats.map((stat, i) => (
+          <Cards key={i} className="group hover:scale-[1.02] transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className={`${stat.bg} ${stat.color} p-3 rounded-2xl transition-colors`}>
+                  <Icon icon={stat.icon} width={28} height={28} />
+                </div>
+                <div className="bg-gray-50 text-gray-400 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Icon icon="solar:arrow-right-up-bold" width={16} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+                <p className="text-3xl font-extrabold text-foreground tracking-tight">{stat.value}</p>
+              </div>
+            </CardContent>
+          </Cards>
+        ))}
       </div>
 
       {/* Bagian Chart */}
-      <div className="w-full h-100 rounded-lg shadow my-5">
-        <BarChartDashboard />
-      </div>
+      <Cards className="p-2 lg:p-4">
+        <CardHeader className="px-4 md:px-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-4">
+            <div>
+              <CardTitle className="text-lg md:text-xl font-bold">Pesan Terbalas & Penggunaan Token</CardTitle>
+              <p className="text-xs md:text-sm text-muted-foreground">Statistik performa chatbot dalam 7 hari terakhir</p>
+            </div>
+            <div className="flex self-start sm:self-auto gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary text-[10px] md:text-xs font-bold rounded-lg cursor-pointer hover:bg-primary/20 transition-colors">
+                Last 7 Days
+                <Icon icon="solar:alt-arrow-down-bold" />
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="h-[300px] md:h-[400px] px-2 md:px-6 pb-6">
+          <BarChartDashboard />
+        </CardContent>
+      </Cards>
+
       {/* Bagian bawah */}
-      <div className="grid grid-cols-3 gap-5 text-[#655E5E]">
-        <div className="rounded-lg w-full h-auto bg-white shadow p-5">
-          <p className="w-40 mb-3">Integration Platform Connected</p>
-          <div className="flex h-20 justify-between px-5 items-center border-4 border-[#CCCCCC] hover:border-[#A4F5A6] rounded-lg mb-3 cursor-pointer">
-            <div className="wa flex gap-5 items-center">
-              <Icon icon="logos:whatsapp-icon" width={40} />
-              <div className="flex flex-col">
-                <p className="text-lg">Baileys</p>
-                <p className="text-sm text-[#A4A4A4]">Aktif</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <Cards className="h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+               <Icon icon="solar:link-bold-duotone" className="text-primary" />
+               Connected Platforms
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {[
+              { label: "Baileys", status: "Aktif", icon: "logos:whatsapp-icon" },
+              { label: "Bot Father", status: "Nonaktif", icon: "mdi:telegram", color: "bg-blue-500" },
+              { label: "Whatsapp Business", status: "Nonaktif", icon: "logos:whatsapp-icon" },
+              { label: "Website", status: "Nonaktif", icon: "solar:globus-bold-duotone", color: "bg-amber-500" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-primary/20 hover:bg-gray-50 transition-all cursor-pointer group">
+                <div className="flex items-center gap-4">
+                  {item.color ? (
+                    <div className={`w-10 h-10 rounded-lg ${item.color} flex items-center justify-center text-white`}>
+                      <Icon icon={item.icon} width={24} height={24} />
+                    </div>
+                  ) : (
+                    <Icon icon={item.icon} width={32} />
+                  )}
+                  <div className="flex flex-col">
+                    <p className="font-semibold text-gray-900 group-hover:text-primary transition-colors">{item.label}</p>
+                    <p className={`text-xs ${item.status === 'Aktif' ? 'text-green-500 font-bold' : 'text-gray-400 font-medium'}`}>{item.status}</p>
+                  </div>
+                </div>
+                <Checkbox className="peer-checked:scale-110 transition-transform" />
               </div>
-            </div>
-            <Checkbox />
-          </div>
-          <div className="flex h-20 justify-between px-5 items-center border-4 border-[#CCCCCC] hover:border-[#A4F5A6] rounded-lg mb-3 cursor-pointer">
-            <div className="wa flex gap-5 items-center">
-              <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white">
-                <Icon icon="mdi:telegram" width={28} height={28} />
-              </div>
-              <div className="flex flex-col">
-                <p className="text-lg">Bot Father</p>
-                <p className="text-sm text-[#A4A4A4]">Nonaktif</p>
-              </div>
-            </div>
-            <Checkbox />
-          </div>
-          <div className="flex h-20 justify-between px-5 items-center border-4 border-[#CCCCCC] hover:border-[#A4F5A6] rounded-lg mb-3 cursor-pointer">
-            <div className="wa flex gap-5 items-center">
-              <Icon icon="logos:whatsapp-icon" width={40} />
-              <div className="flex flex-col">
-                <p className="text-lg">Whatsapp Bussiness</p>
-                <p className="text-sm text-[#A4A4A4]">Nonaktif</p>
-              </div>
-            </div>
-            <Checkbox />
-          </div>
-          <div className="flex h-20 justify-between px-5 items-center border-4 border-[#CCCCCC] hover:border-[#A4F5A6] rounded-lg mb-3 cursor-pointer">
-            <div className="wa flex gap-5 items-center">
-              <div className="w-12 h-12 rounded-xl bg-yellow-500 flex items-center justify-center text-white">
-                <Icon icon="akar-icons:globe" width={28} height={28} />
-              </div>
-              <div className="flex flex-col">
-                <p className="text-lg">Website</p>
-                <p className="text-sm text-[#A4A4A4]">Nonaktif</p>
-              </div>
-            </div>
-            <Checkbox />
-          </div>
-        </div>
+            ))}
+          </CardContent>
+        </Cards>
 
-        <div className="rounded-lg w-full h-auto bg-white shadow p-5">
-          <p>Kestabilan Token</p>
-          <div className="flex flex-col items-center justify-center mt-9">
-            <GaugeChart />
-          </div>
-          <div className="flex flex-col items-center justify-around gap-2">
-            <div className="grid grid-cols-2 w-full items-center gap-16">
-              <p className="text-xl">optimal</p>
-              <p className="text-xl text-green-500">2000 Token</p>
+        <Cards className="h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+               <Icon icon="solar:widget-bold-duotone" className="text-primary" />
+               Kestabilan Token
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center">
+            <div className="scale-[1.15] mb-10 mt-6 relative">
+              <GaugeChart />
+              <div className="absolute inset-x-0 bottom-0 text-center">
+                <span className="text-2xl font-black text-primary">85%</span>
+              </div>
             </div>
-            <div className="grid grid-cols-2 w-full items-center gap-16">
-              <p className="text-xl">stabil</p>
-              <p className="text-xl text-green-400">2000 Token</p>
+            <div className="w-full space-y-4 px-2">
+              {[
+                { label: "Optimal", color: "text-green-500", value: "2000 Token" },
+                { label: "Stabil", color: "text-teal-400", value: "2000 Token" },
+                { label: "Menipis", color: "text-amber-400", value: "2000 Token" },
+                { label: "Kritis", color: "text-red-500", value: "2000 Token" },
+              ].map((item, i) => (
+                <div key={i} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2 last:border-0">
+                  <span className="text-muted-foreground font-semibold">{item.label}</span>
+                  <span className={`font-black ${item.color}`}>{item.value}</span>
+                </div>
+              ))}
             </div>
-            <div className="grid grid-cols-2 w-full items-center gap-16">
-              <p className="text-xl">menipis</p>
-              <p className="text-xl text-red-400">2000 Token</p>
-            </div>
-            <div className="grid grid-cols-2 w-full items-center gap-16">
-              <p className="text-xl">kritis</p>
-              <p className="text-xl text-red-500">2000 Token</p>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Cards>
 
-        {/* Product */}
-        <div className="rounded-lg w-full h-auto bg-white shadow p-5">
-          <p className="w-40 mb-9">Active Product</p>
-          <div className="flex flex-col gap-6">
-          <div className="active-product flex gap-6.25 items-center justify-between">
-            <div className="flex gap-6.25 items-center justify-between">
-              <div className="gambar-product flex items-center justify-center border rounded-lg w-12.5 h-12.5 bg-[#cccccc]"></div>
-              <div className="flex flex-col justify-center">
-                <p>Sapu</p>
-                <p className="text-xs">ID : SPU-0001</p>
+        <Cards className="h-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+               <Icon icon="solar:box-bold-duotone" className="text-primary" />
+               Active Products
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {[1, 2, 3].map((_, i) => (
+              <div key={i} className="flex items-center justify-between group p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-primary/15 group-hover:text-primary transition-all duration-300">
+                    <Icon icon="solar:archive-bold-duotone" width={28} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 group-hover:text-primary transition-colors">Sapu Ijuk</p>
+                    <p className="text-[10px] text-muted-foreground font-bold font-mono mt-0.5 opacity-60">REF: SPU-0001</p>
+                  </div>
+                </div>
+                <div className="scale-90">
+                   <Switch checked={i === 0} />
+                </div>
               </div>
-            </div>
-                <Switch size="lg" />
-          </div>
-          <div className="active-product flex gap-6.25 items-center justify-between">
-            <div className="flex gap-6.25 items-center justify-between">
-              <div className="gambar-product flex items-center justify-center border rounded-lg w-12.5 h-12.5 bg-[#cccccc]"></div>
-              <div className="flex flex-col justify-center">
-                <p>Sapu</p>
-                <p className="text-xs">ID : SPU-0001</p>
-              </div>
-            </div>
-                <Switch size="lg" />
-          </div>
-          <div className="active-product flex gap-6.25 items-center justify-between">
-            <div className="flex gap-6.25 items-center justify-between">
-              <div className="gambar-product flex items-center justify-center border rounded-lg w-12.5 h-12.5 bg-[#cccccc]"></div>
-              <div className="flex flex-col justify-center">
-                <p>Sapu</p>
-                <p className="text-xs">ID : SPU-0001</p>
-              </div>
-            </div>
-                <Switch size="lg" />
-          </div>
-          </div>
-        </div>
+            ))}
+          </CardContent>
+        </Cards>
       </div>
     </div>
   );

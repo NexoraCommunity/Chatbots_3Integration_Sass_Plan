@@ -3,36 +3,38 @@ import { motion } from "framer-motion";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
-interface SideBarItemProps {
+interface SideBarItemsProps {
   label: string;
-  icon?: ReactNode;
-  href?: string;
+  icon: React.ReactNode;
   active?: boolean;
+  href?: string;
   toggle?: boolean;
   isOpen?: boolean;
-  onToggle?: () => void; // klik icon panah
+  onToggle?: () => void;
+  isShrunk?: boolean;
 }
 
 const MotionLink = motion(Link);
 
-export function SideBarItems({
+const SideBarItems = ({
   label,
   icon,
-  href,
   active,
+  href,
   toggle,
   isOpen,
   onToggle,
-}: SideBarItemProps) {
+  isShrunk,
+}: SideBarItemsProps) => {
   const isActiveNow = active;
 
   const baseClass = `
-    flex items-center justify-between my-6 rounded-lg cursor-pointer transition font-normal 
-    ${
-      isActiveNow
-        ? "bg-linear-to-r from-[#00D2B2] to-[#7cfce9] text-white justify-center py-4 shadow-md"
-        : "text-[#655E5E] hover:border-b rounded-none"
+    flex items-center justify-between my-2 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 font-medium group
+    ${isActiveNow
+      ? "bg-primary/10 text-primary shadow-xs"
+      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
     }
   `;
 
@@ -47,22 +49,24 @@ export function SideBarItems({
           if (toggle) onToggle?.();
         }}
       >
-        <div className="flex items-center gap-3 flex-1 select-none ml-4">
+        <div className={cn(
+          "flex items-center gap-3 flex-1 select-none",
+          isShrunk ? "justify-center ml-0" : "ml-4"
+        )}>
           {icon}
-          <span>{label}</span>
+          {!isShrunk && <span>{label}</span>}
         </div>
-
-        <motion.div
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggle?.();
-          }}
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.7 }}
-          className="p-1"
-        >
-          <Icon icon="mdi:chevron-up" width="20" height="20" />
-        </motion.div>
+        {!isShrunk && toggle && (
+          <div className="mr-1">
+            <Icon
+              icon="lucide:chevron-down"
+              className={cn(
+                "w-4 h-4 text-muted-foreground transition-transform duration-200",
+                isOpen && "rotate-180"
+              )}
+            />
+          </div>
+        )}
       </MotionLink>
     );
   }
@@ -74,10 +78,15 @@ export function SideBarItems({
       href={href || "#"}
       className={baseClass}
     >
-      <div className="flex items-center gap-3 ml-4">
+      <div className={cn(
+        "flex items-center gap-3 flex-1 select-none",
+        isShrunk ? "justify-center ml-0" : "ml-4"
+      )}>
         {icon}
-        <span>{label}</span>
+        {!isShrunk && <span>{label}</span>}
       </div>
     </MotionLink>
   );
-}
+};
+
+export { SideBarItems };

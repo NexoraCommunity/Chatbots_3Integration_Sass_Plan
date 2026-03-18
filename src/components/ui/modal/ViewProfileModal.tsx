@@ -13,7 +13,7 @@ export function ViewProfileModal({ open, onClose }: ViewProfileModalProps) {
       <div className="fixed top-0 right-0 w-full h-full z-sedang" onClick={onClose}>
 
       </div>
-      <div className="relative z-tinggi w-66.5 mb-1 rounded-lg p-4 bg-white shadow border border-[#E0E0E0]">
+      <div className="relative z-tinggi w-[266px] mb-1 rounded-lg p-4 bg-white shadow border border-[#E0E0E0]">
         <div className="flex items-center w-full gap-3.75 bg-[#EFEFEF] px-4 py-2 rounded-lg">
           <span className="Profile rounded-full bg-black w-10 h-10 flex justify-center items-center">
             <Icon

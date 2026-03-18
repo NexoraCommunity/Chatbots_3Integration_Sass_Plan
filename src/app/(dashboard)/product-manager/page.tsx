@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
@@ -6,6 +7,7 @@ import { SearchBar } from "@/src/components/ui/SearchBar";
 import { Icon } from "@iconify/react";
 import TableActions from "@/src/components/ui/TableActions";
 import { PaginationDemo } from "@/src/components/ui/Pagination";
+import { Cards } from "@/src/components/ui/Cards";
 
 const Page = () => {
   const [openFilter, setOpenFilter] = useState(false);
@@ -15,90 +17,79 @@ const Page = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="Add-product py-4 bg-white items-center border-2 rounded-lg">
-        <div className="flex justify-between items-center mx-9">
+    <div className="h-full flex flex-col space-y-6 animate-in fade-in duration-500">
+      {/* Header Section */}
+      <Cards className="p-1 px-1 bg-white border-gray-100 shadow-sm overflow-visible">
+        <div className="flex flex-col md:flex-row justify-between items-center p-6 gap-4">
           <SearchBar
-            placeholder="Search Products..."
-            className="w-80"
+            placeholder="Search products..."
+            className="w-full md:w-80 h-11"
             variant="secondary"
           />
-          <div className="flex gap-5">
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <Button
-              label="Filter"
-              variant="custom"
-              icon={<Icon icon="mdi:filter" width={20} />}
+              label={openFilter ? "Hide Filters" : "Filters"}
+              variant="secondary"
+              icon={<Icon icon={openFilter ? "solar:filter-cross-bold-duotone" : "solar:filter-bold-duotone"} width={20} />}
               iconPosition="left"
               onClick={handleOpenFilter}
-              className="flex gap-2.5 text-[16px] text-gray-500 rounded-lg border-4 border-[#575555] hover:border-[#01D2B3] py-3 px-10"
+              className={`h-11 px-6 border-gray-100 font-bold transition-all ${openFilter ? 'bg-primary/10 text-primary border-primary/20' : ''}`}
             />
-
             <Button
               label="Add Product"
-              variant="custom"
-              icon={<Icon icon="ic:baseline-plus" width={20} />}
+              variant="primary"
+              icon={<Icon icon="solar:add-circle-bold-duotone" width={20} />}
               iconPosition="left"
               moveTo="/product-manager/add-product"
-              className="flex gap-2.5 text-[16px] bg-linear-to-r from-[#00D2B2] to-[#7cfce9] text-white justify-center px-10 py-3 rounded-lg"
+              className="h-11 px-8 font-bold shadow-lg shadow-primary/20"
             />
           </div>
         </div>
-        {openFilter && (
-          <>
-            <hr className="my-3.75" />
-            <div className="grid grid-cols-4 gap-5.5 mx-9">
-              <div className="filterBySku flex flex-col">
-                <p>SKU</p>
-                <Input
-                  placeholder=""
-                  variant="custom"
-                  className="p-2 rounded-lg border-2 border-[#767373]"
-                />
-              </div>
-              <div className="filterBySku flex flex-col">
-                <p>Kategori</p>
-                <Input
-                  placeholder=""
-                  variant="custom"
-                  className="p-2 rounded-lg border-2 border-[#767373]"
-                />
-              </div>
-              <div className="filterBySku flex flex-col">
-                <p>Harga</p>
-                <Input
-                  placeholder=""
-                  variant="custom"
-                  className="p-2 rounded-lg border-2 border-[#767373]"
-                />
-              </div>
-              <div className="filterBySku flex flex-col">
-                <p>Status</p>
-                <Input
-                  placeholder=""
-                  variant="custom"
-                  className="p-2 rounded-lg border-2 border-[#767373]"
-                />
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-      <div className="flex flex-col justify-between mt-3.5 my-4 bg-white w-full h-full rounded-lg">
 
-        <div className="mx-9">
+        {openFilter && (
+          <div className="px-6 pb-6 animate-in slide-in-from-top-4 duration-300">
+            <hr className="mb-6 border-gray-50" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <FilterField label="SKU" icon="solar:hashtag-bold-duotone" />
+              <FilterField label="Category" icon="solar:widget-bold-duotone" />
+              <FilterField label="Price Range" icon="solar:tag-bold-duotone" />
+              <FilterField label="Status" icon="solar:check-circle-bold-duotone" />
+            </div>
+          </div>
+        )}
+      </Cards>
+
+      {/* Table Section */}
+      <Cards className="flex-1 bg-white border-gray-100 shadow-sm flex flex-col p-0 overflow-hidden">
+        <div className="p-6 flex-1 overflow-x-auto">
           <TableActions />
         </div>
-        <div className="flex items-center justify-between px-11 pt-2 border-t text-xs w-full">
-          <p>
-            Show Data <span className="border p-1 rounded">17</span> of 200
-          </p>
-          <div className="flex self-end">
+
+        <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-t border-gray-50 bg-gray-50/30 gap-4">
+          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-full border border-gray-100 shadow-sm">
+            Showing <span className="text-gray-800">1-10</span> of <span className="text-gray-800">124</span> products
+          </div>
+          <div className="scale-90 sm:scale-100">
             <PaginationDemo />
           </div>
         </div>
-      </div>
+      </Cards>
     </div>
   );
 };
+
+const FilterField = ({ label, icon }: { label: string; icon: string }) => (
+  <div className="flex flex-col space-y-2 group">
+    <div className="flex items-center gap-2">
+      <Icon icon={icon} className="text-gray-400 group-focus-within:text-primary transition-colors" width={14} />
+      <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</p>
+    </div>
+    <Input
+      placeholder={`Filter by ${label.toLowerCase()}...`}
+      variant="secondary"
+      className="h-10 text-xs border-gray-100 focus:border-primary/30 transition-all rounded-xl"
+    />
+  </div>
+);
 
 export default Page;

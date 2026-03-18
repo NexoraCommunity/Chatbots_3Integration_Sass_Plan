@@ -1,10 +1,5 @@
-import React from 'react'
-import Link from "next/link";
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return (
-    <div>platform-chat</div>
-  )
+export default function PlatformChatPage() {
+  redirect("/integration/platform-chat/whatsapp-bussiness");
 }
-
-export default page

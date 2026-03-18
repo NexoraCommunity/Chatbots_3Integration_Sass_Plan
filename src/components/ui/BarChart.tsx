@@ -26,18 +26,39 @@ const options = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { display: true , position: "top" as const},
+    legend: { 
+      display: true, 
+      position: "top" as const,
+      labels: {
+        usePointStyle: true,
+        padding: 20,
+        font: { size: 12 }
+      }
+    },
   },
-  barThickness: 50,
+  scales: {
+    y: {
+      beginAtZero: true,
+      grid: {
+        color: "rgba(0, 0, 0, 0.05)",
+      },
+    },
+    x: {
+      grid: {
+        display: false,
+      },
+    },
+  },
+  // Use a smaller bar thickness or let it auto-calculate for better mobile fit
+  maxBarThickness: 40,
+  categoryPercentage: 0.8,
+  barPercentage: 0.6,
 };
 
 export default function BarChartDashboard() {
   return (
-    <div className="bg-white px-10 py-5 rounded-xl h-full">
-      <h2 className="font-normal text-[#655E5E] mb-4">Pesan terbalas & penggunaan token</h2>
-      <div className="flex justify-center items-center h-full w-full pb-10">
-        <Bar data={data} options={options} className="" />
-      </div>
+    <div className="w-full h-full">
+      <Bar data={data} options={options} />
     </div>
   );
 }

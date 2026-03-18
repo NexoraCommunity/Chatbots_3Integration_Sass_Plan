@@ -5,6 +5,8 @@ import { Icon } from "@iconify/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { ViewProfileModal } from "./modal/ViewProfileModal";
+import { cn } from "@/lib/utils";
+import { useSidebarStore } from "@/src/store/sidebar.store";
 
 const botMenu = [
   {
@@ -27,11 +29,6 @@ const botMenu = [
       />
     ),
     href: "/integration/activation",
-  },
-  {
-    label: "AI & Analytic",
-    icon: <Icon icon="ri:file-ai-fill" width="16" height="16" />,
-    href: "/ai-analytic",
   },
 ];
 
@@ -60,7 +57,7 @@ const salesMenu = [
   {
     label: "Customer",
     icon: <Icon icon="famicons:people" width="16" height="16" />,
-    href: "/customer",
+    href: "/customer/kontak",
   },
 ];
 
@@ -79,17 +76,42 @@ const mainMenu = [
 
 const integrationSubMenu = [
   { labelSub: "Activation", subHref: "/integration/activation" },
-  { labelSub: "Platform Chat", subHref: "/integration/platform-chat"},
+  { labelSub: "Platform Chat", subHref: "/integration/platform-chat" },
+  { labelSub: "Payment Gateway", subHref: "/integration/payment-gateway" },
+  { labelSub: "Shipping", subHref: "/integration/shipping" },
 ];
 
+const customerSubMenu = [
+  { labelSub: "Kontak", subHref: "/customer/kontak" },
+  { labelSub: "Support", subHref: "/customer/support" },
+];
+
+interface SideBarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
 // Page
-const SideBar = () => {
+const SideBar = ({ isOpen, onClose }: SideBarProps) => {
   const activePath = usePathname();
   const [openIntegration, setOpenIntregation] = useState(false);
+  const [openCustomer, setOpenCustomer] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
+
+  const { isShrunk, toggleShrunk, setShrunk } = useSidebarStore();
+
+  useEffect(() => {
+    // Auto-shrink on kontak page
+    if (activePath === "/customer/kontak") {
+      setShrunk(true);
+    } else {
+      setShrunk(false);
+    }
+  }, [activePath, setShrunk]);
 
   useEffect(() => {
     setOpenIntregation(activePath.startsWith("/integration"));
+    setOpenCustomer(activePath.startsWith("/customer"));
   }, [activePath]);
 
   const handleOpenProfile = () => {
@@ -97,120 +119,219 @@ const SideBar = () => {
   };
 
   return (
-    <div className="fixed flex flex-col h-screen w-69 bg-linear-to-b from-[#FFFFFF] to-[#F6F6F6]">
-      <div className="ml-9 flex items-center gap-4 text-[#01D2B3] m-5">
-        <Icon icon="mingcute:robot-fill" width="30" height="30" />
-        <h2 className="font-semibold text-2xl">Nexchatbot</h2>
-      </div>
-      <div className="grow px-5 overflow-y-auto scrollbar-hide">
-        <div>
-          <h3 className="font-semibold ml-4 text-[#6862624D]">Main Menu</h3>
-          {mainMenu.map((item) => (
-            <SideBarItems
-              key={item.href}
-              label={item.label}
-              href={item.href}
-              icon={item.icon}
-              active={activePath.includes(item.href)}
-            />
-          ))}
-        </div>
-        {/* Sales Menu */}
-        <div>
-          <h3 className="font-semibold ml-4 text-[#6862624D]">Bot Menu</h3>
-          {botMenu.map((item) => {
-            if (item.label === "Integration") {
-              return (
-                <div key={item.href}>
-                  <SideBarItems
-                    label={item.label}
-                    href={item.href}
-                    icon={item.icon}
-                    toggle
-                    active={openIntegration}
-                    isOpen={openIntegration}
-                    onToggle={() => {
-                      setOpenIntregation((prev) => !prev);
-                    }}
-                  />
-                  {openIntegration && (
-                    <div className="ml-8 flex flex-col gap-3.5">
-                      {integrationSubMenu.map((sub) => {
-                        return (
-                          <SubSideBarItems
-                            key={sub.subHref}
-                            labelSub={sub.labelSub}
-                            subHref={sub.subHref}
-                            active={activePath.includes(sub.subHref)}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-            return (
-              <SideBarItems
-                key={item.href}
-                label={item.label}
-                href={item.href}
-                icon={item.icon}
-                active={activePath.startsWith(item.href)}
-              />
-            );
-          })}
-        </div>
-        {/* Main Menu */}
-        <div>
-          <h3 className="font-semibold ml-4 text-[#6862624D]">Sales Menu</h3>
-          {salesMenu.map((item) => {
-            return (
-              <SideBarItems
-                key={item.href}
-                label={item.label}
-                href={item.href}
-                icon={item.icon}
-                active={activePath.startsWith(item.href)}
-              />
-            );
-          })}
-        </div>
-      </div>
-
-      {/* modal */}
-      {openProfile && (
-        <div className="absolute bottom-18 w-full flex justify-center items-center">
-          <ViewProfileModal
-            open={openProfile}
-            onClose={() => setOpenProfile(false)}
-          />
-        </div>
-      )}
-      {/* profile */}
-      <div className="sticky bottom-0 left-0 w-full flex justify-between items-center h-20 border-t-2 px-3.75 bg-white">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
         <div
-          className="flex items-center w-full gap-3.75"
-          onClick={() => handleOpenProfile()}
-        >
-          <span className="Profile rounded-full bg-black w-10 h-10 flex justify-center items-center">
-            <Icon
-              icon="mdi:account-circle"
-              width="32"
-              height="32"
-              className="text-white"
-            />
-          </span>
-          <div className="flex flex-col">
-            <p className="text-sm font-medium">Bayu Skak</p>
-            <p className="text-xs text-[#A3A3A3]">Free(gamodal)</p>
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60] lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-[60] flex flex-col h-screen bg-sidebar border-r border-sidebar-border shadow-lg transform transition-all duration-300 ease-in-out",
+        isShrunk ? "w-24" : "w-72",
+        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+      )}>
+        <div className={cn(
+          "flex items-center justify-between py-10 mb-2 transition-all duration-300 relative",
+          isShrunk ? "px-0 justify-center" : "px-6"
+        )}>
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2.5 rounded-2xl text-primary ring-4 ring-primary/5">
+              <Icon icon="mingcute:robot-fill" width="32" height="32" />
+            </div>
+            {!isShrunk && (
+              <div className="flex flex-col">
+                <h2 className="font-bold text-xl tracking-tight text-foreground leading-none">HiChet</h2>
+              </div>
+            )}
+          </div>
+
+          {/* Manual Toggle Button (Desktop) */}
+          <button
+            onClick={toggleShrunk}
+            className={cn(
+              "hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 bg-white border border-sidebar-border rounded-full p-1.5 shadow-sm text-muted-foreground hover:text-primary transition-all z-10",
+              isShrunk && "rotate-180"
+            )}
+          >
+            <Icon icon="lucide:chevron-left" width={14} height={14} />
+          </button>
+
+          {/* Close button for mobile */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Icon icon="lucide:x" width={24} height={24} />
+          </button>
+        </div>
+        <div className={cn(
+          "grow overflow-y-auto scrollbar-hide transition-all duration-300",
+          isShrunk ? "px-3" : "px-6"
+        )}>
+          <div className="mb-6">
+            {!isShrunk && <h3 className="px-4 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Main Menu</h3>}
+            {mainMenu.map((item) => (
+              <SideBarItems
+                key={item.href}
+                label={item.label}
+                href={item.href}
+                icon={item.icon}
+                active={activePath.includes(item.href)}
+                isShrunk={isShrunk}
+              />
+            ))}
+          </div>
+          {/* Sales Menu */}
+          <div className="mb-6">
+            {!isShrunk && <h3 className="px-4 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bot Menu</h3>}
+            {botMenu.map((item) => {
+              if (item.label === "Integration") {
+                return (
+                  <div key={item.href}>
+                    <SideBarItems
+                      label={item.label}
+                      href={item.href}
+                      icon={item.icon}
+                      toggle
+                      active={openIntegration}
+                      isOpen={openIntegration}
+                      isShrunk={isShrunk}
+                      onToggle={() => {
+                        setOpenIntregation((prev) => !prev);
+                      }}
+                    />
+                    {openIntegration && !isShrunk && (
+                      <div className="ml-9 pl-7 border-l-2 border-sidebar-border/50 flex flex-col gap-4 my-2">
+                        {integrationSubMenu.map((sub) => {
+                          return (
+                            <SubSideBarItems
+                              key={sub.subHref}
+                              labelSub={sub.labelSub}
+                              subHref={sub.subHref}
+                              active={activePath.includes(sub.subHref)}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <SideBarItems
+                  key={item.href}
+                  label={item.label}
+                  href={item.href}
+                  icon={item.icon}
+                  active={activePath.startsWith(item.href)}
+                  isShrunk={isShrunk}
+                />
+              );
+            })}
+          </div>
+          {/* Main Menu */}
+          <div className="mb-6">
+            {!isShrunk && <h3 className="px-4 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sales Menu</h3>}
+            {salesMenu.map((item) => {
+              if (item.label === "Customer") {
+                return (
+                  <div key={item.href}>
+                    <SideBarItems
+                      label={item.label}
+                      href={item.href}
+                      icon={item.icon}
+                      toggle
+                      active={openCustomer}
+                      isOpen={openCustomer}
+                      isShrunk={isShrunk}
+                      onToggle={() => {
+                        setOpenCustomer((prev) => !prev);
+                      }}
+                    />
+                    {openCustomer && !isShrunk && (
+                      <div className="ml-9 pl-7 border-l-2 border-sidebar-border/50 flex flex-col gap-4 my-2">
+                        {customerSubMenu.map((sub) => {
+                          return (
+                            <SubSideBarItems
+                              key={sub.subHref}
+                              labelSub={sub.labelSub}
+                              subHref={sub.subHref}
+                              active={activePath.includes(sub.subHref)}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <SideBarItems
+                  key={item.href}
+                  label={item.label}
+                  href={item.href}
+                  icon={item.icon}
+                  active={activePath.startsWith(item.href)}
+                  isShrunk={isShrunk}
+                />
+              );
+            })}
           </div>
         </div>
-        <p className="text-sm text-[#767373] px-2 py-1 border border-[#767373] rounded-lg">
-          Upgrade
-        </p>
+
+        {/* modal */}
+        {openProfile && (
+          <div className="absolute bottom-20 w-full flex justify-center items-center">
+            <ViewProfileModal
+              open={openProfile}
+              onClose={() => setOpenProfile(false)}
+            />
+          </div>
+        )}
+        {/* profile */}
+        <div className={cn(
+          "p-6 mt-auto border-t border-sidebar-border bg-sidebar/50 backdrop-blur-sm transition-all duration-300",
+          isShrunk && "px-3 items-center flex flex-col"
+        )}>
+          <div
+            className={cn(
+              "flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/50 cursor-pointer transition-colors w-full",
+              isShrunk && "justify-center px-0"
+            )}
+            onClick={handleOpenProfile}
+          >
+            <div className="relative">
+              <div className="rounded-full bg-primary/20 w-10 h-10 flex justify-center items-center overflow-hidden border border-primary/10">
+                <Icon
+                  icon="mdi:account-circle"
+                  width="32"
+                  height="32"
+                  className="text-primary"
+                />
+              </div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+            </div>
+            {!isShrunk && (
+              <div className="flex flex-col flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">Bayu Skak</p>
+                <p className="text-xs text-muted-foreground truncate">Free Plan</p>
+              </div>
+            )}
+          </div>
+
+          <button className={cn(
+            "mt-4 flex items-center justify-center gap-2 bg-primary text-white text-sm font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20",
+            isShrunk ? "w-12 h-12 p-0" : "w-full px-4 py-3"
+          )}>
+            <Icon icon="solar:star-fall-bold" width={20} height={20} />
+            {!isShrunk && <span>Upgrade Plan</span>}
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
