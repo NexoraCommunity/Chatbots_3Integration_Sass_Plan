@@ -3,16 +3,46 @@ import React from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Input } from "@/src/components/ui/Input";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
 
 export default function AddTelegram() {
   const router = useRouter();
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const userIntegrationId = searchParams?.get("userIntegrationId") || undefined;
 
-  const handleCreate = () => {
-    // Logic to create token
-    router.back();
+  const { addToast } = useToastStore();
+  const { create, isLoading } = useContentIntegrationStore();
+  const { getAllIntegration } = useUserIntegrationStore();
+  const { user } = useAuthStore();
+
+  const [botName, setBotName] = React.useState("");
+  const [accessToken, setAccessToken] = React.useState("");
+
+  const handleCreate = async () => {
+    if (!botName || !accessToken) {
+      addToast("Please fill in all fields", "warning");
+      return;
+    }
+
+    try {
+      await create("chatPlatform", {
+        provider: "botFather",
+        botName,
+        accessToken,
+      }, userIntegrationId);
+
+      addToast("Created configuration successfully!", "success");
+      getAllIntegration(user?.id!)
+      router.back();
+    } catch (error: any) {
+      console.error("Failed to create bot:", error);
+      addToast(error.message || "Failed to connect botFather", "error");
+    }
   };
 
   return (
@@ -39,7 +69,7 @@ export default function AddTelegram() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Icon icon="solar:document-text-bold-duotone" className="text-primary" />
-                Bot Configuration
+                BotFather Configuration
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 pt-0">
@@ -49,6 +79,8 @@ export default function AddTelegram() {
                   placeholder="e.g. My Awesome Support Bot"
                   variant="secondary"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={botName}
+                  onChange={(e) => setBotName(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
@@ -57,6 +89,8 @@ export default function AddTelegram() {
                   placeholder="Paste your token here..."
                   variant="secondary"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.target.value)}
                 />
               </div>
             </CardContent>
@@ -100,8 +134,9 @@ export default function AddTelegram() {
             />
             <Button
               variant="primary"
-              label="Connect Bot"
+              label={isLoading ? "Adding..." : "Add Configuration"}
               onClick={handleCreate}
+              disabled={isLoading}
               className="px-10 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm flex-1 sm:flex-none"
             />
           </div>

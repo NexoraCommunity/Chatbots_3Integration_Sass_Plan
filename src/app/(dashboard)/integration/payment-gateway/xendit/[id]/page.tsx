@@ -1,23 +1,52 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { XenditConfig } from "@/src/model/integration/contentIntegration.model";
 
 export default function XenditDetail({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter();
   const { id } = React.use(params);
+  const router = useRouter();
+  const { getById, currentContentIntegration, isLoading } = useContentIntegrationStore();
+  const { addToast } = useToastStore();
+  const [showServerKey, setShowServerKey] = useState(false);
 
-  const details = {
-    name: "Secondary Integration",
-    serverKey: "xnd_development_XX...XXXX",
-    webhookKey: "wh_XX...XXXX",
-    webhookUrl: "https://api.nexora.com/webhook/xendit",
-    createdAt: "2024-03-18",
-    status: "Active",
-    environment: "Development"
+  useEffect(() => {
+    if (id) {
+      getById(id).catch((err) => {
+        console.error("Failed to fetch xendit detail:", err);
+        addToast(err.message || "Failed to fetch details", "error");
+      });
+    }
+  }, [id, getById, addToast]);
+
+  const config = currentContentIntegration?.configJson as XenditConfig;
+
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    addToast(`${label} copied to clipboard`, "success");
   };
+
+  if (isLoading && !currentContentIntegration) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!currentContentIntegration && !isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full space-y-4">
+        <p className="text-gray-500">Configuration not found</p>
+        <Button label="Go Back" onClick={() => router.back()} variant="secondary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-8 max-w-5xl mx-auto w-full px-4 sm:px-0 bg-[#FAFAFA]">
@@ -39,7 +68,7 @@ export default function XenditDetail({ params }: { params: Promise<{ id: string 
         <Button
           variant="secondary"
           className="h-10 px-6 rounded-xl poppins-bold flex items-center gap-2 border-gray-100 hover:bg-white hover:shadow-md transition-all font-bold text-xs uppercase tracking-widest"
-          onClick={() => router.push(`${id}/edit`)}
+          onClick={() => router.push(`/integration/payment-gateway/xendit/${id}/edit`)}
         >
           <Icon icon="solar:pen-new-square-bold-duotone" width={18} />
           Edit Config
@@ -60,11 +89,13 @@ export default function XenditDetail({ params }: { params: Promise<{ id: string 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Integration Name</p>
-                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{details.name}</p>
+                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{config?.name || "N/A"}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Created At</p>
-                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{details.createdAt}</p>
+                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                    {currentContentIntegration?.createdAt ? new Date(currentContentIntegration.createdAt).toLocaleDateString() : "N/A"}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -83,17 +114,33 @@ export default function XenditDetail({ params }: { params: Promise<{ id: string 
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Server Key</p>
                   <div className="relative group">
-                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">••••••••••••••••••••••••••••</p>
-                    <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200/50 rounded-lg transition-colors group-hover:text-primary">
-                      <Icon icon="solar:eye-bold-duotone" width={18} />
-                    </button>
+                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">
+                      {showServerKey ? config?.serverKey : "••••••••••••••••••••••••••••"}
+                    </p>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                      <button 
+                        onClick={() => setShowServerKey(!showServerKey)}
+                        className="p-2 hover:bg-gray-200/50 rounded-lg transition-colors text-gray-400 hover:text-primary"
+                      >
+                        <Icon icon={showServerKey ? "solar:eye-closed-bold-duotone" : "solar:eye-bold-duotone"} width={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleCopy(config?.serverKey || "", "Server Key")}
+                        className="p-2 hover:bg-gray-200/50 rounded-lg transition-colors text-gray-400 hover:text-primary"
+                      >
+                        <Icon icon="solar:copy-bold-duotone" width={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Webhook Token</p>
                   <div className="relative group">
-                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">{details.webhookKey}</p>
-                    <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200/50 rounded-lg transition-colors group-hover:text-primary">
+                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">{config?.webhookToken || "N/A"}</p>
+                    <button 
+                      onClick={() => handleCopy(config?.webhookToken || "", "Webhook Token")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200/50 rounded-lg transition-colors text-gray-400 hover:text-primary"
+                    >
                       <Icon icon="solar:copy-bold-duotone" width={18} />
                     </button>
                   </div>
@@ -114,8 +161,11 @@ export default function XenditDetail({ params }: { params: Promise<{ id: string 
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Webhook URL</p>
                 <div className="flex items-center justify-between bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-                  <span className="text-xs font-mono font-semibold text-primary">{details.webhookUrl}</span>
-                  <button className="text-gray-400 hover:text-primary transition-colors">
+                  <span className="text-xs font-mono font-semibold text-primary">{config?.webhookVerif || "Not Generated"}</span>
+                  <button 
+                    onClick={() => handleCopy(config?.webhookVerif || "", "Webhook URL")}
+                    className="text-gray-400 hover:text-primary transition-colors"
+                  >
                     <Icon icon="solar:copy-bold-duotone" width={18} />
                   </button>
                 </div>
@@ -136,7 +186,7 @@ export default function XenditDetail({ params }: { params: Promise<{ id: string 
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">{details.status}</p>
+                <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">Active</p>
               </div>
             </div>
 
@@ -149,7 +199,7 @@ export default function XenditDetail({ params }: { params: Promise<{ id: string 
               </div>
               <div>
                 <span className="px-3 py-1 bg-blue-500/10 text-blue-600 text-[10px] font-black uppercase tracking-widest border border-blue-500/20 rounded-lg">
-                  {details.environment}
+                  Production
                 </span>
               </div>
             </div>

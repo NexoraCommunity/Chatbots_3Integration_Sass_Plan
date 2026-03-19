@@ -1,25 +1,52 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import Image from "next/image";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { WebsiteConfig } from "@/src/model/integration/contentIntegration.model";
 
 export default function WebsiteDetail({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = React.use(params);
+  const { getById, currentContentIntegration, isLoading } = useContentIntegrationStore();
+  const { addToast } = useToastStore();
 
-  const details = {
-    name: "Main E-commerce",
-    domain: "https://shop.nexora.com",
-    image: "https://api.iconify.design/logos:nextjs-icon.svg",
-    createdAt: "2024-03-18",
-    status: "Verified",
-    lastCrawl: "2024-03-18 10:00 AM"
-  };
+  useEffect(() => {
+    if (id) {
+      getById(id).catch((err) => {
+        console.error("Failed to fetch website detail:", err);
+        addToast(err.message || "Failed to fetch details", "error");
+      });
+    }
+  }, [id, getById, addToast]);
+
+  const config = currentContentIntegration?.configJson as WebsiteConfig;
+
+  if (isLoading && !config) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-4">
+        <Icon icon="solar:shield-warning-bold-duotone" width={64} className="text-gray-300 mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 poppins-bold">Configuration Not Found</h2>
+        <p className="text-gray-500 mt-2 poppins-medium">The website configuration you're looking for doesn't exist.</p>
+        <Button variant="primary" onClick={() => router.back()} className="mt-6">Go Back</Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col space-y-8 max-w-5xl mx-auto w-full px-4 sm:px-0 bg-[#FAFAFA]">
+    <div className="flex flex-col space-y-8 max-w-5xl mx-auto w-full px-4 sm:px-0 bg-[#FAFAFA] mb-20 mt-4">
       {/* Header with Back Button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -38,7 +65,7 @@ export default function WebsiteDetail({ params }: { params: Promise<{ id: string
         <Button
           variant="secondary"
           className="h-10 px-6 rounded-xl poppins-bold flex items-center gap-2 border-gray-100 hover:bg-white hover:shadow-md transition-all font-bold text-xs uppercase tracking-widest"
-          onClick={() => router.push(`${id}/edit`)}
+          onClick={() => router.push(`/integration/platform-chat/website/${id}/edit`)}
         >
           <Icon icon="solar:pen-new-square-bold-duotone" width={18} />
           Edit Config
@@ -58,19 +85,29 @@ export default function WebsiteDetail({ params }: { params: Promise<{ id: string
             <CardContent className="space-y-6 pt-0">
               <div className="flex items-center gap-6 p-4 rounded-2xl bg-gray-50/50 border border-gray-100">
                 <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center border border-gray-100 overflow-hidden shadow-sm shrink-0">
-                  <img src={details.image} alt={details.name} className="w-10 h-10" />
+                  {config.img ? (
+                    <Image
+                      src={config.img.startsWith('http') ? config.img : `/api-backend/${config.img.startsWith('/') ? config.img.substring(1) : config.img}`}
+                      alt={config.botName}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Icon icon="solar:code-bold-duotone" width={32} className="text-gray-300" />
+                  )}
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Site Name</p>
-                  <p className="text-base font-bold text-gray-900">{details.name}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Site Name</p>
+                  <p className="text-base font-bold text-gray-900">{config.botName}</p>
                 </div>
               </div>
 
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Domain URL</p>
                 <div className="flex items-center justify-between bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-                  <span className="text-sm font-semibold text-primary">{details.domain}</span>
-                  <a href={details.domain} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
+                  <span className="text-sm font-semibold text-primary">{config.domain}</span>
+                  <a href={config.domain} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
                     <Icon icon="solar:link-bold-duotone" width={18} />
                   </a>
                 </div>
@@ -90,11 +127,16 @@ export default function WebsiteDetail({ params }: { params: Promise<{ id: string
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Registration Date</p>
-                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{details.createdAt}</p>
+                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                    {currentContentIntegration?.createdAt ? new Date(currentContentIntegration.createdAt).toLocaleDateString() : "-"}
+                  </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Last Crawl</p>
-                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{details.lastCrawl}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Status</p>
+                  <div className="px-4 py-3 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Verified & Active
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -114,7 +156,7 @@ export default function WebsiteDetail({ params }: { params: Promise<{ id: string
             <div className="space-y-2 relative z-10">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                <p className="text-sm font-black text-emerald-400 uppercase tracking-widest">{details.status}</p>
+                <p className="text-sm font-black text-emerald-400 uppercase tracking-widest">VERIFIED</p>
               </div>
               <p className="text-xs text-gray-400 leading-relaxed font-bold italic">
                 "Your website is verified and ready to be used as a knowledge base for your AI agents."

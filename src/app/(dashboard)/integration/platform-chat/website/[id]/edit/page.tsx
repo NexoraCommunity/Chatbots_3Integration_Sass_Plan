@@ -1,25 +1,104 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Input } from "@/src/components/ui/Input";
+import Image from "next/image";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { useUploadStore } from "@/src/store/upload/upload.store";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
+import { WebsiteConfig } from "@/src/model/integration/contentIntegration.model";
 
 export default function EditWebsite({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const router = useRouter();
 
-  const handleUpdate = () => {
-    // Logic to update website config
-    router.back();
+  const { getById, update, currentContentIntegration, isLoading } = useContentIntegrationStore();
+  const { addToast } = useToastStore();
+  const { uploadImage, isLoading: isUploading } = useUploadStore();
+  const { getAllIntegration } = useUserIntegrationStore();
+  const { user } = useAuthStore();
+
+  const [formData, setFormData] = useState({
+    botName: "",
+    domain: "",
+    img: "",
+  });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (id) {
+      getById(id).then((res) => {
+        if (res.data) {
+          const config = res.data.configJson as WebsiteConfig;
+          setFormData({
+            botName: config.botName || "",
+            domain: config.domain || "",
+            img: config.img || "",
+          });
+        }
+      }).catch((err) => {
+        addToast(err.message || "Failed to fetch details", "error");
+      });
+    }
+  }, [id, getById, addToast]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const response = await uploadImage(file);
+        setFormData({ ...formData, img: response.data });
+        addToast("Image updated successfully", "success");
+      } catch (error: any) {
+        addToast(error.message || "Failed to upload image", "error");
+      }
+    }
   };
 
+  const handleUpdate = async () => {
+    if (!formData.botName || !formData.domain) {
+      addToast("Please fill in required fields (Name & Domain)", "warning");
+      return;
+    }
+
+    try {
+      await update(id, "chatPlatform", {
+        provider: "website",
+        botName: formData.botName,
+        domain: formData.domain,
+        img: formData.img,
+      });
+
+      addToast("Website configuration updated successfully!", "success");
+      if (user?.id) {
+        await getAllIntegration(user.id);
+      }
+      router.push("/integration/platform-chat/website");
+    } catch (error: any) {
+      console.error("Failed to update website config:", error);
+      addToast(error.message || "Failed to update configuration", "error");
+    }
+  };
+
+  if (isLoading && !formData.botName) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col space-y-8  bg-[#FAFAFA] max-w-5xl mx-auto w-full">
+    <div className="flex flex-col space-y-8 bg-[#FAFAFA] max-w-5xl mx-auto w-full">
       {/* Header with Back Button */}
-      <div className="flex items-center gap-4 px-4 sm:px-0">
+      <div className="flex items-center gap-4 px-4 sm:px-0 mt-4">
         <Button
           variant="secondary"
           onClick={() => router.back()}
@@ -33,7 +112,7 @@ export default function EditWebsite({ params }: { params: Promise<{ id: string }
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 sm:px-0">
         <div className="lg:col-span-2 space-y-8">
           {/* Identity & Configuration */}
           <Cards>
@@ -44,28 +123,76 @@ export default function EditWebsite({ params }: { params: Promise<{ id: string }
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 pt-0">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Website Name</label>
-                <Input
-                  defaultValue="My Online Store"
-                  variant="secondary"
-                  className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Domain URL</label>
-                <Input
-                  defaultValue="https://myshop.com"
-                  variant="secondary"
-                  className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
-                />
+              <div className="flex flex-col sm:flex-row gap-6 items-start">
+                {/* Image Upload Block */}
+                <div className="space-y-2 shrink-0">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Profile Image</label>
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-32 h-32 rounded-2xl border-2 border-dashed border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 relative overflow-hidden group"
+                  >
+                    {formData.img ? (
+                      <>
+                        <Image
+                          src={formData.img.startsWith('http') ? formData.img : `/api-backend/${formData.img.startsWith('/') ? formData.img.substring(1) : formData.img}`}
+                          alt="Preview"
+                          width={128}
+                          height={128}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                          <Icon icon="solar:upload-bold" width={24} />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Icon icon="solar:camera-add-bold-duotone" width={32} className="text-gray-300 group-hover:text-primary transition-colors" />
+                        <span className="text-[10px] font-bold text-gray-400 group-hover:text-primary transition-colors uppercase">Upload</span>
+                      </>
+                    )}
+                    {isUploading && (
+                      <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </div>
+
+                <div className="flex-1 space-y-6 w-full">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Website Name</label>
+                    <Input
+                      placeholder="e.g. My Online Store"
+                      variant="secondary"
+                      className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                      value={formData.botName}
+                      onChange={(e) => setFormData({ ...formData, botName: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Domain URL</label>
+                    <Input
+                      placeholder="https://example.com"
+                      variant="secondary"
+                      className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                      value={formData.domain}
+                      onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+                    />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Cards>
         </div>
 
         <div className="space-y-8">
-          {/* Quick Info / Pro Tip */}
           <div className="p-6 rounded-[2rem] bg-amber-500/5 border border-amber-500/10 space-y-4">
             <div className="flex items-center gap-3">
               <div className="bg-amber-500 p-2 rounded-xl text-white">
@@ -101,8 +228,9 @@ export default function EditWebsite({ params }: { params: Promise<{ id: string }
             />
             <Button
               variant="primary"
-              label="Save Changes"
+              label={isLoading ? "Saving..." : "Save Changes"}
               onClick={handleUpdate}
+              disabled={isLoading || isUploading}
               className="px-10 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm flex-1 sm:flex-none"
             />
           </div>

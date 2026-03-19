@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/src/store/authentication/auth.store";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/src/store/ui/sidebar.store";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
 
 export default function DashboardLayout({
   children,
@@ -21,6 +22,9 @@ export default function DashboardLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const { userIntegrations, getAllIntegration, isLoading: isIntegrationsLoading } = useUserIntegrationStore();
+  const { user } = useAuthStore();
+
 
 
   useEffect(() => {
@@ -29,13 +33,20 @@ export default function DashboardLayout({
         const data = await getCurrentUser();
         if (data) {
           setIsAuthenticated(true);
+        } else {
+          const refreshData = await refreshToken();
+          setIsAuthenticated(!!refreshData);
         }
       } catch (error) {
-        const data = await refreshToken();
-        if (!data) {
+        try {
+          const data = await refreshToken();
+          if (!data) {
+            setIsAuthenticated(false);
+          } else {
+            setIsAuthenticated(true);
+          }
+        } catch (refreshError) {
           setIsAuthenticated(false);
-        } else {
-          setIsAuthenticated(true);
         }
       } finally {
         setIsLoading(false);
@@ -43,7 +54,7 @@ export default function DashboardLayout({
     };
 
     verifyAuth();
-  }, [getCurrentUser]);
+  }, [getCurrentUser, refreshToken]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -51,8 +62,31 @@ export default function DashboardLayout({
     }
   }, [isLoading, isAuthenticated, router]);
 
+  useEffect(() => {
+    if (isAuthenticated && user?.id && userIntegrations.length === 0 && !isIntegrationsLoading) {
+      getAllIntegration(user.id).catch((err) => {
+        console.error("DashboardLayout: Failed to fetch integrations", err);
+      });
+    }
+  }, [isAuthenticated, user?.id, userIntegrations.length, isIntegrationsLoading, getAllIntegration]);
+
   const { isShrunk } = useSidebarStore();
   const isKontak = usePathname() === "/customer/kontak";
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen w-screen bg-[#F8F9FA]">
+        <div className="flex flex-col items-center gap-4">
+          <Icon icon="lucide:loader-2" width={48} className="animate-spin text-primary" />
+          <p className="text-muted-foreground poppins-medium animate-pulse">Verifying Access...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="flex grow h-screen overflow-hidden">

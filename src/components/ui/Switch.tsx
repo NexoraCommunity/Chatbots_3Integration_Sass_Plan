@@ -12,10 +12,15 @@ interface SwitchProps {
 const Switch = ({ checked = false, onCheckedChange, disabled = false, className = "" }: SwitchProps) => {
   const [internalChecked, setInternalChecked] = React.useState(checked);
 
+  React.useEffect(() => {
+    setInternalChecked(checked);
+  }, [checked]);
+
   const toggle = () => {
     if (disabled) return;
     const next = !internalChecked;
-    setInternalChecked(next);
+    // We don't set internal state here if we want it to be fully controlled,
+    // but the current implementation does. I'll let onCheckedChange handle it.
     onCheckedChange?.(next);
   };
 

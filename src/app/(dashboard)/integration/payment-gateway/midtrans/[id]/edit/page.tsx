@@ -1,20 +1,80 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Input } from "@/src/components/ui/Input";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { MidtransConfig } from "@/src/model/integration/contentIntegration.model";
 
 export default function EditMidtrans({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const router = useRouter();
+  const { getById, update, currentContentIntegration, isLoading } = useContentIntegrationStore();
+  const { addToast } = useToastStore();
+  const { user } = useAuthStore();
+  const { getAllIntegration } = useUserIntegrationStore();
 
-  const handleUpdate = () => {
-    // Logic to update midtrans config
-    router.back();
+  const [formData, setFormData] = useState({
+    name: "",
+    clientKey: "",
+    serverKey: "",
+  });
+
+  useEffect(() => {
+    if (id) {
+      getById(id).then((res) => {
+        const config = res.data.configJson as MidtransConfig;
+        setFormData({
+          name: config.name || "",
+          clientKey: config.clientKey || "",
+          serverKey: config.serverKey || "",
+        });
+      }).catch((err) => {
+        console.error("Failed to fetch midtrans detail for edit:", err);
+        addToast(err.message || "Failed to fetch details", "error");
+      });
+    }
+  }, [id, getById, addToast]);
+
+  const handleUpdate = async () => {
+    if (!formData.name || !formData.clientKey || !formData.serverKey) {
+      addToast("Please fill in all fields", "error");
+      return;
+    }
+
+    try {
+      await update(id, "midtrans", {
+        provider: "midtrans",
+        name: formData.name,
+        clientKey: formData.clientKey,
+        serverKey: formData.serverKey,
+        webhookVerif: (currentContentIntegration?.configJson as MidtransConfig).webhookVerif || "",
+      });
+
+      addToast("Configuration updated successfully", "success");
+      if (user?.id) {
+        await getAllIntegration(user.id);
+      }
+      router.push("/integration/payment-gateway/midtrans");
+    } catch (error: any) {
+      console.error("Failed to update midtrans config:", error);
+      addToast(error.message || "Failed to update configuration", "error");
+    }
   };
+
+  if (isLoading && !formData.name) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col space-y-8 bg-[#FAFAFA] max-w-5xl mx-auto w-full">
@@ -33,7 +93,7 @@ export default function EditMidtrans({ params }: { params: Promise<{ id: string 
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 sm:px-0">
         <div className="lg:col-span-2 space-y-8">
           {/* Identity & Configuration */}
           <Cards>
@@ -47,27 +107,30 @@ export default function EditMidtrans({ params }: { params: Promise<{ id: string 
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Integration Name</label>
                 <Input
-                  defaultValue="Midtrans Production"
                   variant="secondary"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Client Key</label>
                   <Input
-                    defaultValue="Mid-client-T05Xxxxx"
                     variant="secondary"
                     className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                    value={formData.clientKey}
+                    onChange={(e) => setFormData({ ...formData, clientKey: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Server Key</label>
                   <Input
-                    defaultValue="Mid-server-G92Xxxxx"
                     type="password"
                     variant="secondary"
                     className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                    value={formData.serverKey}
+                    onChange={(e) => setFormData({ ...formData, serverKey: e.target.value })}
                   />
                 </div>
               </div>
@@ -77,14 +140,23 @@ export default function EditMidtrans({ params }: { params: Promise<{ id: string 
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Webhook URL</label>
                 <div className="relative group">
                   <Input
-                    defaultValue="https://api.website.com/webhook/midtrans"
+                    value={(currentContentIntegration?.configJson as MidtransConfig)?.webhookVerif || ""}
                     readOnly
                     variant="secondary"
                     className="bg-gray-100/50 border-gray-100 cursor-not-allowed select-all h-14 text-xs font-mono text-muted-foreground pr-12"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <button 
+                    onClick={() => {
+                      const url = (currentContentIntegration?.configJson as MidtransConfig)?.webhookVerif;
+                      if (url) {
+                        navigator.clipboard.writeText(url);
+                        addToast("Webhook URL copied to clipboard", "success");
+                      }
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
                     <Icon icon="solar:copy-bold-duotone" className="text-gray-400 group-hover:text-primary transition-colors cursor-pointer" width={20} />
-                  </div>
+                  </button>
                 </div>
                 <p className="text-[10px] text-muted-foreground font-medium italic ml-1">Generated automatically and used for transaction updates.</p>
               </div>
@@ -129,8 +201,9 @@ export default function EditMidtrans({ params }: { params: Promise<{ id: string 
             />
             <Button
               variant="primary"
-              label="Save Changes"
+              label={isLoading ? "Saving..." : "Save Changes"}
               onClick={handleUpdate}
+              disabled={isLoading}
               className="px-10 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm flex-1 sm:flex-none"
             />
           </div>

@@ -176,6 +176,7 @@ const Page = () => {
               <Button
                 label={isLoading ? "Creating..." : "Create Account"}
                 variant="primary"
+                type="submit"
                 fullWidth
                 disabled={isLoading}
                 className="h-12 rounded-xl font-bold poppins-semibold shadow-lg shadow-primary/25 hover:shadow-primary/35 transition-all active:scale-[0.98] mt-2"

@@ -1,19 +1,58 @@
 "use client";
-import React from "react";
+import { useEffect, use, useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Input } from "@/src/components/ui/Input";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
 
 export default function EditTelegramBot({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = React.use(params);
+  const { id } = use(params);
   const router = useRouter();
+  const { addToast } = useToastStore();
+  const { currentContentIntegration, getById, update, isLoading } = useContentIntegrationStore();
+  const { getAllIntegration } = useUserIntegrationStore();
+  const { user } = useAuthStore();
 
-  const handleUpdate = () => {
-    // Logic to update token
-    router.back();
+  const [botName, setBotName] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+
+  useEffect(() => {
+    getById(id);
+  }, [id, getById]);
+
+  useEffect(() => {
+    if (currentContentIntegration) {
+      const config = currentContentIntegration.configJson as any;
+      setBotName(config?.botName || "");
+      setAccessToken(config?.accessToken || "");
+    }
+  }, [currentContentIntegration]);
+
+  const handleUpdate = async () => {
+    if (!botName || !accessToken) {
+      addToast("Please fill in all fields", "warning");
+      return;
+    }
+
+    try {
+      await update(id, "chatPlatform", {
+        provider: "botFather",
+        botName,
+        accessToken,
+      });
+      addToast("Changes saved successfully!", "success");
+      getAllIntegration(user?.id!)
+      router.back();
+    } catch (error: any) {
+      console.error("Failed to update bot:", error);
+      addToast(error.message || "Failed to update botFather config", "error");
+    }
   };
 
   return (
@@ -47,17 +86,21 @@ export default function EditTelegramBot({ params }: { params: Promise<{ id: stri
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Bot Name</label>
                 <Input
-                  defaultValue="ajkgd adiuechehn"
+                  placeholder="Bot Name"
                   variant="secondary"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={botName}
+                  onChange={(e) => setBotName(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Bot Token (API Key)</label>
                 <Input
-                  defaultValue="7123456789:AAH-xXxxxxXxxxxxXxxxxxXxxxxxXxxxx"
+                  placeholder="Access Token"
                   variant="secondary"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.target.value)}
                 />
               </div>
             </CardContent>
@@ -101,8 +144,9 @@ export default function EditTelegramBot({ params }: { params: Promise<{ id: stri
             />
             <Button
               variant="primary"
-              label="Save Changes"
+              label={isLoading ? "Saving..." : "Save Changes"}
               onClick={handleUpdate}
+              disabled={isLoading}
               className="px-10 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm flex-1 sm:flex-none"
             />
           </div>

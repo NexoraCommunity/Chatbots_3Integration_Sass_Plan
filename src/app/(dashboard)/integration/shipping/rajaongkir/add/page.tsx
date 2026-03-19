@@ -1,24 +1,133 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Input } from "@/src/components/ui/Input";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { useAddressStore } from "@/src/store/external/address.store";
+
+const COURIERS = [
+  "jne", "sicepat", "ide", "sap", "jnt", "ninja", "tiki", "lion", "anteraja",
+  "pos", "ncs", "rex", "rpx", "sentral", "star", "wahana", "dse"
+];
+
 
 export default function AddRajaOngkir() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const userIntegrationId = searchParams.get("userIntegrationId");
 
-  const handleCreate = () => {
-    // Logic to create rajaongkir config
-    router.back();
+  const { create, isLoading } = useContentIntegrationStore();
+  const { addToast } = useToastStore();
+  const { user } = useAuthStore();
+  const { getAllIntegration } = useUserIntegrationStore();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    apiKey: "",
+  });
+
+  const [selectedCouriers, setSelectedCouriers] = useState<string[]>([]);
+
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [selectedCityId, setSelectedCityId] = useState("");
+  const [selectedDistrictId, setSelectedDistrictId] = useState("");
+  const [selectedVillageId, setSelectedVillageId] = useState("");
+
+  const {
+    provinces, regencies, districts, villages, isLoading: isLoadingAddress,
+    fetchProvinces, fetchRegencies, fetchDistricts, fetchVillages,
+    resetRegencies, resetDistricts, resetVillages
+  } = useAddressStore();
+
+  useEffect(() => {
+    fetchProvinces();
+  }, [fetchProvinces]);
+
+  const handleProvinceChange = (id: string) => {
+    setSelectedProvinceId(id);
+    setSelectedCityId("");
+    setSelectedDistrictId("");
+    setSelectedVillageId("");
+    resetRegencies();
+    if (id) fetchRegencies(id);
+  };
+
+  const handleCityChange = (id: string) => {
+    setSelectedCityId(id);
+    setSelectedDistrictId("");
+    setSelectedVillageId("");
+    resetDistricts();
+    if (id) fetchDistricts(id);
+  };
+
+  const handleDistrictChange = (id: string) => {
+    setSelectedDistrictId(id);
+    setSelectedVillageId("");
+    resetVillages();
+    if (id) fetchVillages(id);
+  };
+
+  const toggleCourier = (courier: string) => {
+    setSelectedCouriers(prev =>
+      prev.includes(courier)
+        ? prev.filter(c => c !== courier)
+        : [...prev, courier]
+    );
+  };
+
+  const handleCreate = async () => {
+    if (!formData.name || !formData.apiKey || selectedCouriers.length === 0 || !selectedVillageId) {
+      addToast("Please fill in all fields", "error");
+      return;
+    }
+
+    if (!userIntegrationId) {
+      addToast("User Integration ID is missing", "error");
+      return;
+    }
+
+    const provinceName = provinces.find(p => p.id === selectedProvinceId)?.name || "";
+    const cityName = regencies.find(c => c.id === selectedCityId)?.name || "";
+    const districtName = districts.find(d => d.id === selectedDistrictId)?.name || "";
+    const villageName = villages.find(v => v.id === selectedVillageId)?.name || "";
+
+    const originString = `${provinceName}, ${cityName}, ${districtName}, ${villageName}`;
+
+    try {
+      await create(
+        "rajaOngkir",
+        {
+          provider: "rajaOngkir",
+          name: formData.name,
+          apiKey: formData.apiKey,
+          courier: selectedCouriers.join(":"),
+          origin: originString,
+        },
+        userIntegrationId
+      );
+
+      addToast("RajaOngkir configuration created successfully", "success");
+      if (user?.id) {
+        await getAllIntegration(user.id);
+      }
+      router.push("/integration/shipping/rajaongkir");
+    } catch (error: any) {
+      console.error("Failed to create RajaOngkir config:", error);
+      addToast(error.message || "Failed to create configuration", "error");
+    }
   };
 
   return (
-    <div className="flex flex-col space-y-8  bg-[#FAFAFA] max-w-5xl mx-auto w-full">
+    <div className="flex flex-col space-y-8 bg-[#FAFAFA] max-w-5xl mx-auto w-full">
       {/* Header with Back Button */}
-      <div className="flex items-center gap-4 px-4 sm:px-0">
+      <div className="flex items-center gap-4 px-4 sm:px-0 mt-4">
         <Button
           variant="secondary"
           onClick={() => router.back()}
@@ -32,7 +141,7 @@ export default function AddRajaOngkir() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 sm:px-0">
         <div className="lg:col-span-2 space-y-8">
           {/* Identity & Configuration */}
           <Cards>
@@ -46,18 +155,97 @@ export default function AddRajaOngkir() {
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Integration Name</label>
                 <Input
-                  placeholder="e.g. RajaOngkir Default"
                   variant="secondary"
+                  placeholder="e.g. RajaOngkir Default"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">API Key</label>
                 <Input
-                  placeholder="Masukkan API Key RajaOngkir"
                   variant="secondary"
+                  placeholder="Masukkan API Key RajaOngkir"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={formData.apiKey}
+                  onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
                 />
+              </div>
+
+              {/* Courier Selection */}
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Available Couriers</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {COURIERS.map((courier) => (
+                    <label key={courier} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${selectedCouriers.includes(courier) ? "bg-primary/5 border-primary shadow-sm" : "bg-white border-gray-100 hover:border-gray-200"}`}>
+                      <input
+                        type="checkbox"
+                        className="hidden"
+                        checked={selectedCouriers.includes(courier)}
+                        onChange={() => toggleCourier(courier)}
+                      />
+                      <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${selectedCouriers.includes(courier) ? "bg-primary text-white" : "border-2 border-gray-200"}`}>
+                        {selectedCouriers.includes(courier) && <Icon icon="lucide:check" width={14} strokeWidth={3} />}
+                      </div>
+                      <span className="text-xs font-bold uppercase text-gray-700">{courier}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Origin Selection */}
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Origin Address</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Province</label>
+                    <select
+                      className="w-full h-14 rounded-xl border-gray-100 bg-gray-50/50 px-4 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all outline-none border"
+                      value={selectedProvinceId}
+                      onChange={(e) => handleProvinceChange(e.target.value)}
+                    >
+                      <option value="">Select Province</option>
+                      {provinces.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">City / Regency</label>
+                    <select
+                      className="w-full h-14 rounded-xl border-gray-100 bg-gray-50/50 px-4 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all outline-none border disabled:opacity-50"
+                      value={selectedCityId}
+                      onChange={(e) => handleCityChange(e.target.value)}
+                      disabled={!selectedProvinceId || isLoadingAddress}
+                    >
+                      <option value="">Select City</option>
+                      {regencies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">District (Kecamatan)</label>
+                    <select
+                      className="w-full h-14 rounded-xl border-gray-100 bg-gray-50/50 px-4 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all outline-none border disabled:opacity-50"
+                      value={selectedDistrictId}
+                      onChange={(e) => handleDistrictChange(e.target.value)}
+                      disabled={!selectedCityId || isLoadingAddress}
+                    >
+                      <option value="">Select District</option>
+                      {districts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Village (Kelurahan)</label>
+                    <select
+                      className="w-full h-14 rounded-xl border-gray-100 bg-gray-50/50 px-4 text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all outline-none border disabled:opacity-50"
+                      value={selectedVillageId}
+                      onChange={(e) => setSelectedVillageId(e.target.value)}
+                      disabled={!selectedDistrictId || isLoadingAddress}
+                    >
+                      <option value="">Select Village</option>
+                      {villages.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                    </select>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Cards>
@@ -73,7 +261,7 @@ export default function AddRajaOngkir() {
               <h4 className="font-bold text-orange-600 text-sm uppercase tracking-wider">Logistics</h4>
             </div>
             <p className="text-xs text-orange-600/70 leading-relaxed font-medium">
-              RajaOngkir helps you calculate shipping costs accurately from various Indonesian couriers like JNE, TIKI, and POS.
+              RajaOngkir helps you calculate shipping costs accurately from various Indonesian couriers. Select the origin address where your packages will be shipped from.
             </p>
           </div>
         </div>
@@ -100,8 +288,9 @@ export default function AddRajaOngkir() {
             />
             <Button
               variant="primary"
-              label="Save Configuration"
+              label={isLoading ? "Saving..." : "Save Configuration"}
               onClick={handleCreate}
+              disabled={isLoading || isLoadingAddress}
               className="px-10 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm flex-1 sm:flex-none"
             />
           </div>

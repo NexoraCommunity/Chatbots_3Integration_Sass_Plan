@@ -1,22 +1,52 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { MidtransConfig } from "@/src/model/integration/contentIntegration.model";
 
 export default function MidtransDetail({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { id } = React.use(params);
+  const { getById, currentContentIntegration, isLoading } = useContentIntegrationStore();
+  const { addToast } = useToastStore();
+  const [showServerKey, setShowServerKey] = useState(false);
 
-  const details = {
-    name: "Main Integration",
-    clientKey: "Mid-client-XXXXX",
-    serverKey: "Mid-server-XXXXX",
-    webhookUrl: "https://api.nexora.com/webhook/midtrans",
-    createdAt: "2024-03-18",
-    status: "Active",
-    environment: "Production"
+  useEffect(() => {
+    if (id) {
+      getById(id).catch((err) => {
+        console.error("Failed to fetch midtrans detail:", err);
+        addToast(err.message || "Failed to fetch details", "error");
+      });
+    }
+  }, [id, getById, addToast]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!currentContentIntegration) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full space-y-4">
+        <Icon icon="solar:shield-warning-bold-duotone" width={64} className="text-gray-300" />
+        <h2 className="text-xl font-bold text-gray-900 poppins-bold">Configuration not found</h2>
+        <Button variant="secondary" onClick={() => router.back()}>Go Back</Button>
+      </div>
+    );
+  }
+
+  const config = currentContentIntegration.configJson as MidtransConfig;
+
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    addToast(`${label} copied to clipboard`, "success");
   };
 
   return (
@@ -39,7 +69,7 @@ export default function MidtransDetail({ params }: { params: Promise<{ id: strin
         <Button
           variant="secondary"
           className="h-10 px-6 rounded-xl poppins-bold flex items-center gap-2 border-gray-100 hover:bg-white hover:shadow-md transition-all font-bold text-xs uppercase tracking-widest"
-          onClick={() => router.push(`${id}/edit`)}
+          onClick={() => router.push(`/integration/payment-gateway/midtrans/${id}/edit`)}
         >
           <Icon icon="solar:pen-new-square-bold-duotone" width={18} />
           Edit Config
@@ -60,11 +90,13 @@ export default function MidtransDetail({ params }: { params: Promise<{ id: strin
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Integration Name</p>
-                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{details.name}</p>
+                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{config.name || "No Name"}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Created At</p>
-                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">{details.createdAt}</p>
+                  <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                    {new Date(currentContentIntegration.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -83,8 +115,11 @@ export default function MidtransDetail({ params }: { params: Promise<{ id: strin
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Client Key</p>
                   <div className="relative group">
-                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">{details.clientKey}</p>
-                    <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200/50 rounded-lg transition-colors group-hover:text-primary">
+                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">{config.clientKey}</p>
+                    <button 
+                      onClick={() => handleCopy(config.clientKey, "Client Key")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200/50 rounded-lg transition-colors group-hover:text-primary"
+                    >
                       <Icon icon="solar:copy-bold-duotone" width={18} />
                     </button>
                   </div>
@@ -92,10 +127,23 @@ export default function MidtransDetail({ params }: { params: Promise<{ id: strin
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Server Key</p>
                   <div className="relative group">
-                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">••••••••••••••••••••••••••••</p>
-                    <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200/50 rounded-lg transition-colors group-hover:text-primary">
-                      <Icon icon="solar:eye-bold-duotone" width={18} />
-                    </button>
+                    <p className="text-xs font-mono font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 break-all pr-12">
+                      {showServerKey ? config.serverKey : "••••••••••••••••••••••••••••"}
+                    </p>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                      <button 
+                        onClick={() => setShowServerKey(!showServerKey)}
+                        className="p-2 hover:bg-gray-200/50 rounded-lg transition-colors group-hover:text-primary"
+                      >
+                        <Icon icon={showServerKey ? "solar:eye-closed-bold-duotone" : "solar:eye-bold-duotone"} width={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleCopy(config.serverKey, "Server Key")}
+                        className="p-2 hover:bg-gray-200/50 rounded-lg transition-colors group-hover:text-primary"
+                      >
+                        <Icon icon="solar:copy-bold-duotone" width={18} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -114,8 +162,11 @@ export default function MidtransDetail({ params }: { params: Promise<{ id: strin
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Webhook URL</p>
                 <div className="flex items-center justify-between bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-                  <span className="text-xs font-mono font-semibold text-primary">{details.webhookUrl}</span>
-                  <button className="text-gray-400 hover:text-primary transition-colors">
+                  <span className="text-xs font-mono font-semibold text-primary">{config.webhookVerif || "Automatically generated"}</span>
+                  <button 
+                    onClick={() => config.webhookVerif && handleCopy(config.webhookVerif, "Webhook URL")}
+                    className="text-gray-400 hover:text-primary transition-colors"
+                  >
                     <Icon icon="solar:copy-bold-duotone" width={18} />
                   </button>
                 </div>
@@ -136,7 +187,7 @@ export default function MidtransDetail({ params }: { params: Promise<{ id: strin
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">{details.status}</p>
+                <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">Active</p>
               </div>
             </div>
 
@@ -149,7 +200,7 @@ export default function MidtransDetail({ params }: { params: Promise<{ id: strin
               </div>
               <div>
                 <span className="px-3 py-1 bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-widest border border-amber-500/20 rounded-lg">
-                  {details.environment}
+                  Production
                 </span>
               </div>
             </div>

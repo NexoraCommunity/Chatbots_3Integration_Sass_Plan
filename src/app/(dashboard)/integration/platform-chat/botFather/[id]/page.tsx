@@ -1,19 +1,44 @@
 "use client";
-import React from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { use, useEffect } from "react";
 
 export default function TelegramDetail({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { id } = React.use(params);
+  const { id } = use(params);
+  const { currentContentIntegration, getById, isLoading } = useContentIntegrationStore();
+
+  useEffect(() => {
+    getById(id);
+  }, [id, getById]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!currentContentIntegration) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full space-y-4">
+        <p className="text-gray-500">Bot not found</p>
+        <Button variant="secondary" onClick={() => router.back()} label="Go Back" />
+      </div>
+    );
+  }
+
+  const config = currentContentIntegration.configJson as any;
 
   const details = {
-    name: "ajkgd adiuechehn",
-    apiKey: "7123456789:AAH-xXxxxxXxxxxxXxxxxxXxxxxxXxxxx",
-    createdAt: "2024-03-18",
-    status: "Active",
+    name: config?.botName || "No Name",
+    apiKey: config?.accessToken || "No API Key",
+    createdAt: new Date(currentContentIntegration.createdAt).toLocaleDateString(),
+    status: currentContentIntegration.isUsed ? "Active" : "Inactive",
     type: "Telegram Bot"
   };
 

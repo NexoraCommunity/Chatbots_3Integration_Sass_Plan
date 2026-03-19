@@ -15,9 +15,10 @@ interface ActionMenuProps {
   baseUrl: string;
   id: string | number;
   onlyDetail?: boolean;
+  onDelete?: (id: string | number) => void;
 }
 
-export const ActionMenu = ({ baseUrl, id, onlyDetail = false }: ActionMenuProps) => {
+export const ActionMenu = ({ baseUrl, id, onlyDetail = false, onDelete }: ActionMenuProps) => {
   const router = useRouter();
 
   return (
@@ -52,7 +53,7 @@ export const ActionMenu = ({ baseUrl, id, onlyDetail = false }: ActionMenuProps)
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="flex items-center gap-2 cursor-pointer text-sm text-red-600 focus:text-red-600 focus:bg-red-50"
-              onClick={() => {/* Trigger delete logic */}}
+              onClick={() => onDelete && onDelete(id)}
             >
               <Icon icon="lucide:trash-2" width={16} />
               <span>Delete</span>

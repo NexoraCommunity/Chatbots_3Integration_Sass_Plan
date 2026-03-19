@@ -1,23 +1,83 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Icon } from "@iconify/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Input } from "@/src/components/ui/Input";
 import { Cards, CardHeader, CardTitle, CardContent } from "@/src/components/ui/Cards";
+import { useContentIntegrationStore } from "@/src/store/integration/contentIntegration.store";
+import { useToastStore } from "@/src/store/ui/toast.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
+import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { XenditConfig } from "@/src/model/integration/contentIntegration.model";
 
 export default function EditXendit({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
   const router = useRouter();
+  const { getById, update, currentContentIntegration, isLoading } = useContentIntegrationStore();
+  const { addToast } = useToastStore();
+  const { user } = useAuthStore();
+  const { getAllIntegration } = useUserIntegrationStore();
 
-  const handleUpdate = () => {
-    // Logic to update xendit config
-    router.back();
+  const [formData, setFormData] = useState({
+    name: "",
+    serverKey: "",
+    webhookToken: "",
+  });
+
+  useEffect(() => {
+    if (id) {
+      getById(id).then((res) => {
+        const config = res.data.configJson as XenditConfig;
+        setFormData({
+          name: config.name || "",
+          serverKey: config.serverKey || "",
+          webhookToken: config.webhookToken || "",
+        });
+      }).catch((err) => {
+        console.error("Failed to fetch xendit detail for edit:", err);
+        addToast(err.message || "Failed to fetch details", "error");
+      });
+    }
+  }, [id, getById, addToast]);
+
+  const handleUpdate = async () => {
+    if (!formData.name || !formData.serverKey || !formData.webhookToken) {
+      addToast("Please fill in all fields", "error");
+      return;
+    }
+
+    try {
+      await update(id, "xendit", {
+        provider: "xendit",
+        name: formData.name,
+        serverKey: formData.serverKey,
+        webhookToken: formData.webhookToken,
+        webhookVerif: (currentContentIntegration?.configJson as XenditConfig).webhookVerif || "",
+      });
+
+      addToast("Configuration updated successfully", "success");
+      if (user?.id) {
+        await getAllIntegration(user.id);
+      }
+      router.push("/integration/payment-gateway/xendit");
+    } catch (error: any) {
+      console.error("Failed to update xendit config:", error);
+      addToast(error.message || "Failed to update configuration", "error");
+    }
   };
 
+  if (isLoading && !formData.name) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col space-y-8  bg-[#FAFAFA] max-w-5xl mx-auto w-full">
+    <div className="flex flex-col space-y-8 bg-[#FAFAFA] max-w-5xl mx-auto w-full">
       {/* Header with Back Button */}
       <div className="flex items-center gap-4 px-4 sm:px-0">
         <Button
@@ -33,13 +93,13 @@ export default function EditXendit({ params }: { params: Promise<{ id: string }>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 px-4 sm:px-0">
         <div className="lg:col-span-2 space-y-8">
           {/* Identity & Configuration */}
           <Cards>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Icon icon="solar:card-highlight-bold-duotone" className="text-primary" />
+                <Icon icon="solar:banknote-bold-duotone" className="text-primary" />
                 Gateway Configuration
               </CardTitle>
             </CardHeader>
@@ -47,29 +107,30 @@ export default function EditXendit({ params }: { params: Promise<{ id: string }>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Integration Name</label>
                 <Input
-                  defaultValue="Xendit Primary"
                   variant="secondary"
                   className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Server Key</label>
-                  <Input
-                    defaultValue="xnd_development_xxxx"
-                    type="password"
-                    variant="secondary"
-                    className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Webhook Key</label>
-                  <Input
-                    defaultValue="verification_token_xxxx"
-                    variant="secondary"
-                    className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
-                  />
-                </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Server Key</label>
+                <Input
+                  type="password"
+                  variant="secondary"
+                  className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={formData.serverKey}
+                  onChange={(e) => setFormData({ ...formData, serverKey: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Webhook Token</label>
+                <Input
+                  variant="secondary"
+                  className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                  value={formData.webhookToken}
+                  onChange={(e) => setFormData({ ...formData, webhookToken: e.target.value })}
+                />
               </div>
 
               {/* Read-only Webhook URL */}
@@ -77,16 +138,25 @@ export default function EditXendit({ params }: { params: Promise<{ id: string }>
                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Webhook URL</label>
                 <div className="relative group">
                   <Input
-                    defaultValue="https://api.website.com/webhook/xendit"
+                    value={(currentContentIntegration?.configJson as XenditConfig)?.webhookVerif || ""}
                     readOnly
                     variant="secondary"
                     className="bg-gray-100/50 border-gray-100 cursor-not-allowed select-all h-14 text-xs font-mono text-muted-foreground pr-12"
                   />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <button 
+                    onClick={() => {
+                      const url = (currentContentIntegration?.configJson as XenditConfig)?.webhookVerif;
+                      if (url) {
+                        navigator.clipboard.writeText(url);
+                        addToast("Webhook URL copied to clipboard", "success");
+                      }
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
                     <Icon icon="solar:copy-bold-duotone" className="text-gray-400 group-hover:text-primary transition-colors cursor-pointer" width={20} />
-                  </div>
+                  </button>
                 </div>
-                <p className="text-[10px] text-muted-foreground font-medium italic ml-1">Copy this URL to your Xendit Dashboard callbacks.</p>
+                <p className="text-[10px] text-muted-foreground font-medium italic ml-1">Generated automatically and used for transaction updates.</p>
               </div>
             </CardContent>
           </Cards>
@@ -97,12 +167,12 @@ export default function EditXendit({ params }: { params: Promise<{ id: string }>
           <div className="p-6 rounded-[2rem] bg-blue-500/5 border border-blue-500/10 space-y-4">
             <div className="flex items-center gap-3">
               <div className="bg-blue-500 p-2 rounded-xl text-white">
-                <Icon icon="solar:tuning-bold-duotone" width={20} />
+                <Icon icon="solar:shield-keyhole-bold-duotone" width={20} />
               </div>
-              <h4 className="font-bold text-blue-600 text-sm uppercase tracking-wider">Callback Setup</h4>
+              <h4 className="font-bold text-blue-600 text-sm uppercase tracking-wider">Security</h4>
             </div>
             <p className="text-xs text-blue-600/70 leading-relaxed font-medium">
-              Don't forget to set the Webhook URL in your Xendit Dashboard settings to receive real-time payment notifications.
+              Updating your server key or webhook token will immediately affect pending transactions. Ensure the new keys are active in your Xendit dashboard.
             </p>
           </div>
         </div>
@@ -113,7 +183,7 @@ export default function EditXendit({ params }: { params: Promise<{ id: string }>
         <div className="mx-auto max-w-5xl p-4 sm:p-5 bg-white/80 backdrop-blur-xl border border-white/50 shadow-2xl rounded-2xl sm:rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex items-center gap-3 sm:ml-4 w-full sm:w-auto justify-center sm:justify-start">
             <div className="bg-primary/10 text-primary w-11 h-11 rounded-2xl flex items-center justify-center font-black shadow-inner">
-              <Icon icon="solar:card-2-bold-duotone" width={24} />
+              <Icon icon="solar:wallet-bold-duotone" width={24} />
             </div>
             <div className="flex flex-col text-center sm:text-left">
               <span className="text-xs font-black text-gray-900 uppercase">Xendit Gateway</span>
@@ -129,8 +199,9 @@ export default function EditXendit({ params }: { params: Promise<{ id: string }>
             />
             <Button
               variant="primary"
-              label="Save Changes"
+              label={isLoading ? "Saving..." : "Save Changes"}
               onClick={handleUpdate}
+              disabled={isLoading}
               className="px-10 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm flex-1 sm:flex-none"
             />
           </div>
