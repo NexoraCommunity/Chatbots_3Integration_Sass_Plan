@@ -1,11 +1,10 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import ShippingTabs from "../../../../components/ShippingTabs";
 import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
 import { Icon } from "@iconify/react";
 
-export default function ShippingLayout({
+export default function ShippingLogicLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -63,15 +62,5 @@ export default function ShippingLayout({
     return null;
   }
 
-  return (
-    <div className="flex flex-col h-full bg-white rounded-[24px] overflow-hidden shadow-sm border border-gray-100">
-      <div className="px-8 pt-8 pb-0">
-        <h1 className="text-3xl font-bold poppins-bold text-foreground mb-6">Shipping</h1>
-        <ShippingTabs />
-      </div>
-      <div className="flex-1 overflow-y-auto p-8">
-        {children}
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }

@@ -6,66 +6,37 @@ import {
   UpdatePassworduser,
   VerifPassword,
 } from "@/src/model/authentication/authentication.model";
+import { apiFetch } from "@/src/lib/api";
 
 export const Register = async (data: RegisterProps) => {
-  try {
-    const response = await fetch(`/api-backend/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/auth/register`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
 
 export const Login = async (data: LoginProps) => {
-  try {
-    const response = await fetch(`/api-backend/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/auth/login`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
 
 export const otpCode = async (data: OtpCodeProps) => {
-  try {
-    const response = await fetch(`/api-backend/auth/otp-verification`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/auth/otp-verification`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 };
 
 export const logOut = async () => {
-  try {
-    const response = await fetch(`/api-backend/auth/logout`, {
-      method: "POST",
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/auth/logout`, {
+    method: "POST",
+  });
 };
 
 export const refreshToken = async () => {
+  // Use standard fetch here to avoid recursion in apiFetch
   try {
     const response = await fetch(`/api-backend/auth/refresh`, {
       method: "GET",
@@ -80,69 +51,35 @@ export const refreshToken = async () => {
 };
 
 export const getCurrentUser = async () => {
-  try {
-    const response = await fetch(`/api-backend/api/user`, {
-      method: "GET",
-      credentials: "include",
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/api/user`, {
+    method: "GET",
+  });
 };
 
 export const updateUser = async (req: PostCurrentUser) => {
   const { id, ...user } = req;
-  try {
-    const response = await fetch(`/api-backend/api/user/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
-      credentials: "include",
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/api/user/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(user),
+  });
 };
 
 export const verifPasswordOtp = async (req: VerifPassword) => {
   const { id, ...user } = req;
-  try {
-    const response = await fetch(`/api-backend/api/user/sendOtp`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
-      credentials: "include",
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/api/user/sendOtp`, {
+    method: "POST",
+    body: JSON.stringify(user),
+  });
 };
 
 export const forgotPassword = async (req: UpdatePassworduser) => {
   const { id, ...user } = req;
-  try {
-    const response = await fetch(`/api-backend/api/user/forgotpassword`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user),
-      credentials: "include",
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  } catch (error: any) {
-    throw error;
-  }
+  return apiFetch(`/api-backend/api/user/forgotpassword`, {
+    method: "POST",
+    body: JSON.stringify(user),
+  });
 };
+
 
 export const GoogleOauth = async () => {
   window.location.href = `/api-backend/auth/google/login`;

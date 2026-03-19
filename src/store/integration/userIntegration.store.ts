@@ -60,30 +60,6 @@ export const useUserIntegrationStore = create<UserIntegrationState>()(
         });
         return response;
       } catch (error: any) {
-        if (error?.status === 401 || error?.statusCode === 401 || error?.message?.includes("401")) {
-          try {
-            await refreshToken();
-            const retryResponse: any = await getUserIntegration(userId);
-            let rawData = retryResponse.data || retryResponse;
-            if (!Array.isArray(rawData) && retryResponse && typeof retryResponse === 'object') {
-              rawData = retryResponse.items || retryResponse.integrations || [];
-            }
-            const mappedData: UserIntegration[] = (Array.isArray(rawData) ? rawData : []).map((item: any) => {
-              let type = item.type;
-              if (!type) {
-                const name = (item.name || item.provider || "").toLowerCase();
-                if (name.includes("whatsapp") || name.includes("baileys") || name.includes("botfather") || name.includes("telegram") || name.includes("website")) type = "chatPlatform";
-                else if (name.includes("xendit") || name.includes("midtrans")) type = "paymentGateway";
-                else if (name.includes("rajaongkir") || name.includes("jnt") || name.includes("shipping")) type = "shipping";
-              }
-              return { ...item, id: String(item.id), type: type || item.type, name: item.name || item.provider || "Unknown" };
-            });
-            set({ userIntegrations: mappedData });
-            return retryResponse;
-          } catch (refreshError) {
-            throw refreshError;
-          }
-        }
         throw error;
       } finally {
         set({ isLoading: false });

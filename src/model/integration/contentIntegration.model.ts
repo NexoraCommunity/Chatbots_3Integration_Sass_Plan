@@ -22,7 +22,7 @@ export interface MidtransConfig {
   name: string;
   serverKey: string;
   clientKey: string;
-  webhookVerif: string;
+  webhookVerif?: string;
 }
 
 export interface XenditConfig {
@@ -30,7 +30,7 @@ export interface XenditConfig {
   name: string;
   serverKey: string;
   webhookToken: string;
-  webhookVerif: string;
+  webhookVerif?: string;
 }
 
 export interface RajaOngkirConfig {

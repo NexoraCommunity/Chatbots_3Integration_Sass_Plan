@@ -8,7 +8,7 @@ import { Icon } from "@iconify/react";
 import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
 
 const tabs = [
-  { id: "rajaongkir", label: "RajaOngkir", path: "/integration/shipping/rajaongkir" },
+  { id: "rajaongkir", label: "RajaOngkir", path: "/integration/shipping/rajaongkir", icon: "gridicons:shipping" },
 ];
 
 const ShippingTabs = () => {
@@ -23,7 +23,7 @@ const ShippingTabs = () => {
   };
 
   return (
-    <div className="flex gap-8 border-b border-gray-100 mb-6">
+    <div className="flex gap-4 sm:gap-8 border-b border-gray-100 mb-6 overflow-x-auto scrollbar-hide">
       {tabs.map((tab) => {
         const isActive = pathname.startsWith(tab.path);
         const enabled = isTabEnabled(tab.id);
@@ -34,12 +34,13 @@ const ShippingTabs = () => {
             onClick={() => enabled && router.push(tab.path)}
             disabled={!enabled}
             className={cn(
-              "relative pb-4 text-sm font-medium transition-all duration-200 poppins-medium flex items-center gap-2",
+              "relative pb-4 text-sm font-medium transition-all duration-200 poppins-medium flex items-center gap-2 shrink-0",
               isActive ? "text-[#01D2B3]" : "text-gray-400 hover:text-gray-600",
               !enabled && "opacity-50 cursor-not-allowed"
             )}
           >
-            {tab.label}
+            <Icon icon={tab.icon} width={20} className={cn(isActive ? "text-[#01D2B3]" : "text-gray-400")} />
+            <span className="hidden sm:block">{tab.label}</span>
             {!enabled && <Icon icon="lucide:lock" width={14} className="text-gray-300" />}
             {isActive && (
               <motion.div

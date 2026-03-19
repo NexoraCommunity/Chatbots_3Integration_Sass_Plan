@@ -1,10 +1,11 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
+import PaymentTabs from "../../../../../components/PaymentTabs";
 import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
 import { Icon } from "@iconify/react";
 
-export default function PaymentGatewayLogicLayout({
+export default function PaymentGatewayListLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -63,5 +64,15 @@ export default function PaymentGatewayLogicLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex flex-col h-full bg-white rounded-[24px] overflow-hidden shadow-sm border border-gray-100">
+      <div className="px-4 sm:px-8 pt-6 sm:pt-8 pb-0">
+        <h1 className="text-xl sm:text-3xl font-bold poppins-bold text-foreground mb-4 sm:mb-6">Payment Gateway</h1>
+        <PaymentTabs />
+      </div>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8">
+        {children}
+      </div>
+    </div>
+  );
 }

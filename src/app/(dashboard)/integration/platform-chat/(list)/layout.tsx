@@ -1,10 +1,11 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
+import PlatformTabs from "@/src/components/PlatformTabs";
 import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
 import { Icon } from "@iconify/react";
 
-export default function PaymentGatewayLogicLayout({
+export default function PlatformChatListLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -14,15 +15,16 @@ export default function PaymentGatewayLogicLayout({
   const { userIntegrations, isLoading } = useUserIntegrationStore();
 
   const tabs = useMemo(() => [
-    { id: "midtrans", path: "/integration/payment-gateway/midtrans" },
-    { id: "xendit", path: "/integration/payment-gateway/xendit" },
+    { id: "whatsapp bussiness", path: "/integration/platform-chat/whatsapp-bussiness" },
+    { id: "botFather", path: "/integration/platform-chat/botFather" },
+    { id: "website", path: "/integration/platform-chat/website" },
   ], []);
 
   useEffect(() => {
     if (isLoading || userIntegrations.length === 0) return;
 
     const activeIntegrations = userIntegrations.filter(
-      (i) => i.type === "paymentGateway" && i.isconnected
+      (i) => i.type === "chatPlatform" && i.isconnected
     );
 
     if (activeIntegrations.length === 0) {
@@ -33,7 +35,7 @@ export default function PaymentGatewayLogicLayout({
     const currentTab = tabs.find(tab => pathname.startsWith(tab.path));
     const isCurrentActive = currentTab && activeIntegrations.some(i => i.name.toLowerCase() === currentTab.id.toLowerCase());
 
-    if (pathname === "/integration/payment-gateway" || !isCurrentActive) {
+    if (pathname === "/integration/platform-chat" || !isCurrentActive) {
       const firstActiveTab = tabs.find(tab => 
         activeIntegrations.some(i => i.name.toLowerCase() === tab.id.toLowerCase())
       );
@@ -47,7 +49,7 @@ export default function PaymentGatewayLogicLayout({
   }, [userIntegrations, isLoading, router, pathname, tabs]);
 
   const isAnyEnabled = userIntegrations.some(
-    (i) => i.type === "paymentGateway" && i.isconnected
+    (i) => i.type === "chatPlatform" && i.isconnected
   );
 
   if (isLoading || userIntegrations.length === 0) {
@@ -63,5 +65,15 @@ export default function PaymentGatewayLogicLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex flex-col h-full bg-white rounded-[24px] overflow-hidden shadow-sm border border-gray-100">
+      <div className="px-4 sm:px-8 pt-6 sm:pt-8 pb-0">
+        <h1 className="text-xl sm:text-3xl font-bold poppins-bold text-foreground mb-4 sm:mb-6">Platform Chat</h1>
+        <PlatformTabs />
+      </div>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-8">
+        {children}
+      </div>
+    </div>
+  );
 }

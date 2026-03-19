@@ -1,11 +1,10 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import PlatformTabs from "@/src/components/PlatformTabs";
 import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
 import { Icon } from "@iconify/react";
 
-export default function PlatformChatLayout({
+export default function PlatformChatLogicLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -27,13 +26,11 @@ export default function PlatformChatLayout({
       (i) => i.type === "chatPlatform" && i.isconnected
     );
 
-    // If no chat integrations are active at all, redirect to activation
     if (activeIntegrations.length === 0) {
       router.push("/integration/activation");
       return;
     }
 
-    // If we are at the root or an inactive sub-path, redirect to the first active one
     const currentTab = tabs.find(tab => pathname.startsWith(tab.path));
     const isCurrentActive = currentTab && activeIntegrations.some(i => i.name.toLowerCase() === currentTab.id.toLowerCase());
 
@@ -67,15 +64,5 @@ export default function PlatformChatLayout({
     return null;
   }
 
-  return (
-    <div className="flex flex-col h-full bg-white rounded-[24px] overflow-hidden shadow-sm border border-gray-100">
-      <div className="px-8 pt-8 pb-0">
-        <h1 className="text-3xl font-bold poppins-bold text-foreground mb-6">Platform Chat</h1>
-        <PlatformTabs />
-      </div>
-      <div className="flex-1 overflow-y-auto p-8">
-        {children}
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }
