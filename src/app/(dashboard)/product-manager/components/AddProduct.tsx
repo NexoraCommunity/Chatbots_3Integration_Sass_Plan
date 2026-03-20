@@ -100,7 +100,6 @@ const AddProduct = ({ initialData, isEdit = false }: ProductFormProps) => {
       return;
     }
 
-    // Filter out incomplete options to allow "real-time" generation for valid ones
     const validOptions = variantOptions.filter(opt => opt.option.trim() !== "" && opt.values.length > 0);
 
     if (validOptions.length === 0) {
@@ -132,20 +131,15 @@ const AddProduct = ({ initialData, isEdit = false }: ProductFormProps) => {
       const comboKey = getComboKey(combo);
       const name = combo.map(c => c.value).join(" - ");
 
-      // Look for existing variant to preserve its custom values
       const existing = generatedVariants.find(v => getComboKey(v.optionValues) === comboKey);
 
       if (existing) {
         return {
           ...existing,
           name,
-          // Update SKU if it looks like it was auto-generated (starts with old/default pattern)
-          // or just always refresh SKU if it's not custom? 
-          // For simplicity, let's keep name updated.
         };
       }
 
-      // New variant takes defaults from base product data
       return {
         name,
         sku: `${productData.sku}-${name.replace(/\s+/g, '')}`,
@@ -309,7 +303,7 @@ const AddProduct = ({ initialData, isEdit = false }: ProductFormProps) => {
   };
 
   return (
-    <div className="flex flex-col space-y-6 md:space-y-8 min-h-screen animate-in fade-in duration-500 w-full px-0 md:px-6 pb-24">
+    <div className="flex flex-col space-y-6 md:space-y-8 min-h-screen animate-in fade-in duration-500 w-full pb-24">
       {/* Header */}
       <div className="flex items-center gap-4 mt-6 px-4 md:px-0">
         <Button

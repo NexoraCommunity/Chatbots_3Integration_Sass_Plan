@@ -25,7 +25,7 @@ interface ProductTableProps {
 }
 
 export default function ProductTable({ products, onDelete }: ProductTableProps) {
-  const { updateProduct, updateStatus } = useProductStore();
+  const { updateStatus } = useProductStore();
   const { categories, fetchCategories } = useCategoryStore();
   const { addToast } = useToastStore();
 
@@ -64,11 +64,11 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
             <div className="flex items-start gap-4">
               <div className="size-16 bg-gray-50 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-100 group-hover:border-primary/20 transition-colors relative shrink-0">
                 {product.image ? (
-                  <Image 
-                    src={product.image.startsWith('http') ? product.image : `/api-backend/${product.image}`} 
-                    alt={product.name} 
+                  <Image
+                    src={product.image.startsWith('http') ? product.image : `/api-backend/${product.image}`}
+                    alt={product.name}
                     fill
-                    className="object-cover" 
+                    className="object-cover"
                   />
                 ) : (
                   <Icon icon="solar:box-minimalistic-bold-duotone" className="size-8 text-gray-200" />
@@ -112,10 +112,10 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                 {categories.find(c => c.id === (product.categoryId || (product as any)?.category_id))?.name || product.categoryId || (product as any)?.category_id || "General"}
               </Badge>
               <div className="flex items-center gap-2 bg-gray-50 rounded-xl px-2 py-1 border border-gray-100">
-                <Switch 
-                  checked={product.isActive} 
+                <Switch
+                  checked={product.isActive}
                   onCheckedChange={() => handleStatusToggle(product)}
-                  className="scale-75 origin-right" 
+                  className="scale-75 origin-right"
                 />
                 <span className={`text-[9px] font-black uppercase tracking-tight ${product.isActive ? 'text-primary' : 'text-gray-400'}`}>
                   {product.isActive ? 'Active' : 'Inactive'}
@@ -146,11 +146,11 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                   <div className="flex items-center gap-4">
                     <div className="size-12 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden border border-gray-100 group-hover:border-primary/20 transition-colors relative">
                       {product.image ? (
-                        <Image 
-                          src={product.image.startsWith('http') ? product.image : `/api-backend/${product.image}`} 
-                          alt={product.name} 
+                        <Image
+                          src={product.image.startsWith('http') ? product.image : `/api-backend/${product.image}`}
+                          alt={product.name}
                           fill
-                          className="object-cover" 
+                          className="object-cover"
                         />
                       ) : (
                         <Icon icon="solar:box-minimalistic-bold-duotone" className="size-6 text-gray-300" />
@@ -182,10 +182,10 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                 </TableCell>
                 <TableCell className="py-4 px-6">
                   <div className="flex items-center gap-2">
-                    <Switch 
-                      checked={product.isActive} 
+                    <Switch
+                      checked={product.isActive}
                       onCheckedChange={() => handleStatusToggle(product)}
-                      className="scale-90" 
+                      className="scale-90"
                     />
                     <span className={`text-[10px] font-bold uppercase ${product.isActive ? 'text-primary' : 'text-gray-400'}`}>
                       {product.isActive ? 'Active' : 'Inactive'}
