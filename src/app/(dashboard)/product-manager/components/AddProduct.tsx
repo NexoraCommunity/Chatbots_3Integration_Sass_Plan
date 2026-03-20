@@ -303,14 +303,14 @@ const AddProduct = ({ initialData, isEdit = false }: ProductFormProps) => {
   };
 
   return (
-    <div className="flex flex-col space-y-6 md:space-y-8 min-h-screen animate-in fade-in duration-500 w-full pb-24">
+    <div className="flex flex-col space-y-6 md:space-y-8 min-h-screen animate-in fade-in duration-500 w-full">
       {/* Header */}
       <div className="flex items-center gap-4 mt-6 px-4 md:px-0">
         <Button
           variant="secondary"
           moveTo="/product-manager"
           label=""
-          iconPosition="mid"
+          iconPosition="left"
           className="size-11 p-0 rounded-2xl flex items-center justify-center hover:bg-white hover:shadow-md transition-all shrink-0 border border-gray-100 shadow-xs"
           icon={<Icon icon="solar:alt-arrow-left-bold" width={22} />}
         />

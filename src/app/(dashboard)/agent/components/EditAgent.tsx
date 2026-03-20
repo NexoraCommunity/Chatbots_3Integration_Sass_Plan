@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { Button } from "@/src/components/ui/Button";
 import { useProductStore } from "@/src/store/product/product.store";
@@ -18,11 +18,14 @@ import AgentOtherContent from "./form/AgentOtherContent";
 import AgentProducts from "./form/AgentProducts";
 import AgentIntegrations from "./form/AgentIntegrations";
 
-const AddAgent = () => {
+const EditAgent = () => {
   const router = useRouter();
+  const params = useParams();
+  const agentId = params.id as string;
+
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
-  const { addUserAgent } = useUserAgentStore();
+  const { fetchUserAgentById, updateUserAgent, currentUserAgent, isLoading: isAgentLoading } = useUserAgentStore();
   const { products, isLoading: isProductsLoading, fetchProducts } = useProductStore();
   const {
     userIntegrations,
@@ -39,9 +42,7 @@ const AddAgent = () => {
     prompt: "",
     agent: "customer-service",
     filePath: "",
-    otherContents: [
-      { name: "Greeting", text: "Halo selamat datang di Toko Kami, ada yang bisa kami bantu?", image: null }
-    ] as OtherContentApi[],
+    otherContents: [] as OtherContentApi[],
   });
 
   const [selectedProducts, setSelectedProducts] = useState(new Set<string>());
@@ -55,12 +56,56 @@ const AddAgent = () => {
   const [shippingIntegrationId, setShippingIntegrationId] = useState("");
   const [shippingContentId, setShippingContentId] = useState("");
 
+  // Initial Fetch
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && agentId) {
       fetchProducts({ userId: user.id, page: "1", limit: "100" });
       getAllIntegration(user.id);
+      fetchUserAgentById(agentId);
     }
-  }, [user?.id, fetchProducts, getAllIntegration]);
+  }, [user?.id, agentId, fetchProducts, getAllIntegration, fetchUserAgentById]);
+
+  // Sync Form Data with fetched Agent
+  useEffect(() => {
+    if (currentUserAgent && currentUserAgent.id === agentId) {
+      setFormData({
+        name: currentUserAgent.name || "",
+        prompt: currentUserAgent.prompt || "",
+        agent: currentUserAgent.agent || "customer-service",
+        filePath: currentUserAgent.filePath || "",
+        otherContents: currentUserAgent.otherContents || [],
+      });
+
+      if (currentUserAgent.productIds) {
+        setSelectedProducts(new Set(currentUserAgent.productIds));
+      }
+
+      setIsPaymentEnabled(!!currentUserAgent.paymentAutomation);
+      if (currentUserAgent.paymentContentIntegrationId) {
+        setPaymentContentId(currentUserAgent.paymentContentIntegrationId);
+        // Find which integration this content belongs to
+        const integration = userIntegrations.find(ui =>
+          ui.contentIntegrations?.some((ci: any) => ci.id === currentUserAgent.paymentContentIntegrationId)
+        );
+        if (integration) setPaymentIntegrationId(integration.id);
+      }
+
+      setIsShippingEnabled(!!currentUserAgent.ongkirChecker);
+      if (currentUserAgent.ongkirContentIntegrationId) {
+        setShippingContentId(currentUserAgent.ongkirContentIntegrationId);
+        // Find which integration this content belongs to
+        const integration = userIntegrations.find(ui =>
+          ui.contentIntegrations?.some((ci: any) => ci.id === currentUserAgent.ongkirContentIntegrationId)
+        );
+        if (integration) setShippingIntegrationId(integration.id);
+      }
+
+      if (currentUserAgent.filePath) {
+        const parts = currentUserAgent.filePath.split('/');
+        setUploadedFileName(parts[parts.length - 1]);
+      }
+    }
+  }, [currentUserAgent, agentId, userIntegrations]);
 
   const filteredProducts = useMemo(() => {
     return products.filter(p =>
@@ -90,29 +135,18 @@ const AddAgent = () => {
     [shippingIntegrations, shippingIntegrationId]
   );
 
+  // Auto-select first integration if none selected (for new state, but for edit we might already have one)
   useEffect(() => {
-    if (paymentIntegrations.length > 0 && !paymentIntegrationId) {
+    if (isPaymentEnabled && paymentIntegrations.length > 0 && !paymentIntegrationId) {
       setPaymentIntegrationId(paymentIntegrations[0].id);
     }
-  }, [paymentIntegrations, paymentIntegrationId]);
+  }, [isPaymentEnabled, paymentIntegrations, paymentIntegrationId]);
 
   useEffect(() => {
-    if (selectedPaymentIntegration?.contentIntegrations?.length && !paymentContentId) {
-      setPaymentContentId(selectedPaymentIntegration.contentIntegrations[0].id);
-    }
-  }, [selectedPaymentIntegration, paymentContentId]);
-
-  useEffect(() => {
-    if (shippingIntegrations.length > 0 && !shippingIntegrationId) {
+    if (isShippingEnabled && shippingIntegrations.length > 0 && !shippingIntegrationId) {
       setShippingIntegrationId(shippingIntegrations[0].id);
     }
-  }, [shippingIntegrations, shippingIntegrationId]);
-
-  useEffect(() => {
-    if (selectedShippingIntegration?.contentIntegrations?.length && !shippingContentId) {
-      setShippingContentId(selectedShippingIntegration.contentIntegrations[0].id);
-    }
-  }, [selectedShippingIntegration, shippingContentId]);
+  }, [isShippingEnabled, shippingIntegrations, shippingIntegrationId]);
 
   const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,7 +156,7 @@ const AddAgent = () => {
         setUploadedFileName(file.name);
         const response = await uploadFile(file);
         setFormData(prev => ({ ...prev, filePath: response.data }));
-        addToast("Reference file uploaded", "success");
+        addToast("Reference file updated", "success");
       } catch (error: any) {
         setUploadedFileName("");
         addToast(error.message || "Failed to upload file", "error");
@@ -191,8 +225,8 @@ const AddAgent = () => {
     }
   }, [addToast, updateOtherContent]);
 
-  const handleCreateAgent = async () => {
-    if (!user?.id) return;
+  const handleUpdateAgent = async () => {
+    if (!user?.id || !agentId) return;
     if (!formData.name) {
       addToast("Agent name is required", "error");
       return;
@@ -200,7 +234,8 @@ const AddAgent = () => {
 
     setIsSaving(true);
     try {
-      await addUserAgent({
+      await updateUserAgent(agentId, {
+        id: agentId,
         userId: user.id,
         name: formData.name,
         agent: formData.agent || "customer-service",
@@ -214,10 +249,10 @@ const AddAgent = () => {
         ongkirContentIntegrationId: isShippingEnabled ? shippingContentId : null,
       });
 
-      addToast("Agent created successfully!", "success");
+      addToast("Agent updated successfully!", "success");
       router.push("/agent");
     } catch (error: any) {
-      addToast(error.message || "Failed to create agent", "error");
+      addToast(error.message || "Failed to update agent", "error");
     } finally {
       setIsSaving(false);
     }
@@ -230,6 +265,15 @@ const AddAgent = () => {
   const handlePaymentToggle = useCallback(() => setIsPaymentEnabled(prev => !prev), []);
   const handleShippingToggle = useCallback(() => setIsShippingEnabled(prev => !prev), []);
 
+  if (isAgentLoading && !formData.name) {
+    return (
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+        <p className="text-primary font-black uppercase tracking-widest text-sm">Loading Agent Configuration...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col space-y-8 max-w-full mx-auto w-full pb-32 lg:pb-8">
       <div className="flex items-center gap-4">
@@ -241,7 +285,9 @@ const AddAgent = () => {
           iconPosition="left"
           className="w-10 h-10 p-0 rounded-xl flex items-center justify-center hover:bg-gray-100 transition-colors shrink-0"
         />
-        <h1 className="text-2xl poppins-bold text-foreground leading-none">Create New Agent</h1>
+        <div>
+          <h1 className="text-2xl poppins-bold text-foreground leading-none">Edit Agent</h1>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -322,17 +368,17 @@ const AddAgent = () => {
               onClick={() => router.push("/agent")}
               className="flex-1 py-3 bg-gray-50 hover:bg-gray-100 text-gray-900 rounded-[1rem] font-bold text-[10px] transition-all active:scale-95 border border-gray-100 uppercase tracking-widest"
             >
-              Discard
+              Cancel
             </button>
             <button
-              onClick={handleCreateAgent}
+              onClick={handleUpdateAgent}
               disabled={isSaving}
               className="flex-1 py-3 bg-[#10b981] hover:bg-[#0da371] text-white disabled:opacity-50 rounded-[1rem] font-bold text-[10px] shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest"
             >
               {isSaving ? (
                 <Icon icon="solar:spinner-bold" className="animate-spin" width={14} />
               ) : (
-                "Create Agent"
+                "Update Agent"
               )}
             </button>
           </div>
@@ -357,14 +403,14 @@ const AddAgent = () => {
                 onClick={() => router.push("/agent")}
                 className="px-8 py-3 bg-gray-50 hover:bg-gray-100 text-gray-900 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 border border-gray-100"
               >
-                Discard
+                Cancel
               </button>
               <button
-                onClick={handleCreateAgent}
+                onClick={handleUpdateAgent}
                 disabled={isSaving}
                 className="px-10 py-3 bg-[#10b981] hover:bg-[#0da371] text-white disabled:opacity-50 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-[1.02] transition-all active:scale-95 flex items-center gap-2"
               >
-                {isSaving ? "Creating..." : "Create Agent"}
+                {isSaving ? "Updating..." : "Update Agent"}
               </button>
             </div>
           </div>
@@ -374,4 +420,4 @@ const AddAgent = () => {
   );
 };
 
-export { AddAgent };
+export { EditAgent };

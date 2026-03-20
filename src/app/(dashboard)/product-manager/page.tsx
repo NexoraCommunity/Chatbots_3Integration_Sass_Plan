@@ -9,14 +9,7 @@ import { Cards } from "@/src/components/ui/Cards";
 import { useProductStore } from "@/src/store/product/product.store";
 import { useAuthStore } from "@/src/store/authentication/auth.store";
 import ProductTable from "./components/ProductTable";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious
-} from "@/components/ui/pagination";
+import { AppPagination } from "@/src/components/ui/Pagination";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -208,36 +201,11 @@ const Page = () => {
               Showing <span className="text-gray-800">{(pagination.page - 1) * pagination.pageSize + 1}-{Math.min(pagination.page * pagination.pageSize, pagination.totalItems)}</span> of <span className="text-gray-800">{pagination.totalItems}</span> products
             </div>
             <div className="scale-90 sm:scale-100">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => { e.preventDefault(); if (currentPage > 1) setCurrentPage(currentPage - 1); }}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                  {[...Array(Math.max(pagination.totalPages || 0, 1))].map((_, i) => (
-                    <PaginationItem key={i}>
-                      <PaginationLink
-                        href="#"
-                        isActive={currentPage === i + 1}
-                        onClick={(e) => { e.preventDefault(); setCurrentPage(i + 1); }}
-                        className="cursor-pointer"
-                      >
-                        {i + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => { e.preventDefault(); if (currentPage < pagination.totalPages) setCurrentPage(currentPage + 1); }}
-                      className={currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <AppPagination 
+                currentPage={currentPage}
+                totalPages={pagination.totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
         )}

@@ -143,7 +143,7 @@ export default function DashboardLayout({
         </header>
 
         <main className={cn(
-          "flex-1 px-4 md:px-12 py-2",
+          "flex-1 px-3 md:px-12 py-2",
           isKontak ? "overflow-hidden flex flex-col pb-6 md:pb-8 pt-0" : "overflow-y-auto scrollbar-hide pb-8 md:pb-10 pt-0"
         )}>
           {children}
