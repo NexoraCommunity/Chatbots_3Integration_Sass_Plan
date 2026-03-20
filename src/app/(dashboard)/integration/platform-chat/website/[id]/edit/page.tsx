@@ -29,6 +29,7 @@ export default function EditWebsite({ params }: { params: Promise<{ id: string }
     domain: "",
     img: "",
   });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("general");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,6 +54,7 @@ export default function EditWebsite({ params }: { params: Promise<{ id: string }
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setPreviewUrl(URL.createObjectURL(file));
       try {
         const response = await uploadImage(file);
         setFormData({ ...formData, img: response.data });
@@ -190,10 +192,10 @@ export default function EditWebsite({ params }: { params: Promise<{ id: string }
                       onClick={() => fileInputRef.current?.click()}
                       className="w-32 h-32 rounded-[2rem] border-2 border-dashed border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 relative overflow-hidden group shadow-inner"
                     >
-                      {formData.img ? (
+                      {previewUrl || formData.img ? (
                         <>
                           <Image
-                            src={formData.img.startsWith('http') ? formData.img : `/api-backend/${formData.img.startsWith('/') ? formData.img.substring(1) : formData.img}`}
+                            src={previewUrl || (formData.img.startsWith('http') ? formData.img : `/api-backend/${formData.img.startsWith('/') ? formData.img.substring(1) : formData.img}`)}
                             alt="Preview"
                             width={128}
                             height={128}

@@ -6,17 +6,34 @@ let isRefreshing = false;
 let refreshPromise: Promise<any> | null = null;
 
 export const apiFetch = async (url: string, options: RequestInit = {}) => {
+  const isFormData = options.body instanceof FormData;
+
   const defaultOptions: RequestInit = {
     ...options,
     credentials: "include", // Ensure cookies are sent (HttpOnly)
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...options.headers,
     },
   };
 
+
+  console.log(`🌐 apiFetch Request: ${options.method || 'GET'} ${url}`, options.body ? "(with body)" : "");
   try {
+    const parseResponse = async (res: Response) => {
+      const text = await res.text();
+      let result;
+      try {
+        result = text ? JSON.parse(text) : {};
+      } catch (e) {
+        result = text;
+      }
+      if (!res.ok) throw result;
+      return result;
+    };
+
     const response = await fetch(url, defaultOptions);
+    console.log(`📡 apiFetch Response: ${response.status} ${url}`);
 
     // If unauthorized, attempt to refresh token
     if (response.status === 401) {
@@ -39,30 +56,18 @@ export const apiFetch = async (url: string, options: RequestInit = {}) => {
         });
       }
 
-      // Wait for the refresh to complete
       await refreshPromise;
-      
-      // Retry the original request
-      return fetch(url, defaultOptions).then(async (res) => {
-        const result = await res.json();
-        if (!res.ok) throw result;
-        return result;
-      });
+
+      const retryResponse = await fetch(url, defaultOptions);
+      return parseResponse(retryResponse);
     }
 
-    // Attempt to parse JSON even for non-ok responses to get error details
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
+    return parseResponse(response);
   } catch (error: any) {
-    // If it's already our "Session expired" error, re-throw it
     if (error.message === "Session expired. Please log in again.") {
-      // You might want to trigger a logout or redirect here if needed
-      // window.location.href = '/login'; 
       throw error;
     }
-    
-    // Handle cases where response might not be JSON or other network errors
+
     throw error;
   }
 };

@@ -14,11 +14,13 @@ import { useRouter } from "next/navigation";
 interface ActionMenuProps {
   baseUrl: string;
   id: string | number;
+  detailUrl?: string; // Optional override for detail link
+  editUrl?: string;   // Optional override for edit link
   onlyDetail?: boolean;
   onDelete?: (id: string | number) => void;
 }
 
-export const ActionMenu = ({ baseUrl, id, onlyDetail = false, onDelete }: ActionMenuProps) => {
+export const ActionMenu = ({ baseUrl, id, detailUrl, editUrl, onlyDetail = false, onDelete }: ActionMenuProps) => {
   const router = useRouter();
 
   return (
@@ -29,13 +31,13 @@ export const ActionMenu = ({ baseUrl, id, onlyDetail = false, onDelete }: Action
           size="sm"
           className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600 rounded-lg"
           iconPosition="mid"
-          icon={<Icon icon="lucide:more-vertical" width={18} />}
+          icon={<Icon icon="lucide:more-horizontal" width={18} />}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40 poppins-medium">
         <DropdownMenuItem
           className="flex items-center gap-2 cursor-pointer text-sm"
-          onClick={() => router.push(`${baseUrl}/${id}`)}
+          onClick={() => router.push(detailUrl || `${baseUrl}/${id}`)}
         >
           <Icon icon="lucide:eye" width={16} />
           <span>Detail</span>
@@ -45,7 +47,7 @@ export const ActionMenu = ({ baseUrl, id, onlyDetail = false, onDelete }: Action
           <>
             <DropdownMenuItem
               className="flex items-center gap-2 cursor-pointer text-sm"
-              onClick={() => router.push(`${baseUrl}/${id}/edit`)}
+              onClick={() => router.push(editUrl || `${baseUrl}/${id}/edit`)}
             >
               <Icon icon="lucide:edit-3" width={16} />
               <span>Edit</span>

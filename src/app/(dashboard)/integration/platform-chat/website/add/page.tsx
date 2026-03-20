@@ -29,6 +29,7 @@ export default function AddWebsite() {
     domain: "",
     img: "",
   });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("general");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,6 +37,7 @@ export default function AddWebsite() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setPreviewUrl(URL.createObjectURL(file));
       try {
         const response = await uploadImage(file);
         setFormData({ ...formData, img: response.data });
@@ -108,11 +110,10 @@ export default function AddWebsite() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === tab.id
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === tab.id
                 ? "bg-white text-primary shadow-sm"
                 : "text-muted-foreground hover:text-gray-900"
-            }`}
+              }`}
           >
             <Icon icon={tab.icon} width={16} />
             <span className="hidden sm:inline">{tab.label}</span>
@@ -174,10 +175,10 @@ export default function AddWebsite() {
                       onClick={() => fileInputRef.current?.click()}
                       className="w-32 h-32 rounded-[2rem] border-2 border-dashed border-gray-200 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 relative overflow-hidden group shadow-inner"
                     >
-                      {formData.img ? (
+                      {previewUrl || formData.img ? (
                         <>
                           <Image
-                            src={formData.img.startsWith('http') ? formData.img : `/api-backend/${formData.img.startsWith('/') ? formData.img.substring(1) : formData.img}`}
+                            src={previewUrl || (formData.img.startsWith('http') ? formData.img : `/api-backend/${formData.img.startsWith('/') ? formData.img.substring(1) : formData.img}`)}
                             alt="Preview"
                             width={128}
                             height={128}

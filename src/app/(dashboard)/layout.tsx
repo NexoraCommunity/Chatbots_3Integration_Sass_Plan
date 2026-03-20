@@ -71,7 +71,12 @@ export default function DashboardLayout({
   }, [isAuthenticated, user?.id, userIntegrations.length, isIntegrationsLoading, getAllIntegration]);
 
   const { isShrunk } = useSidebarStore();
-  const isKontak = usePathname() === "/customer/kontak";
+  const pathname = usePathname();
+  const isKontak = pathname === "/customer/kontak";
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
 
   if (isLoading) {
     return (

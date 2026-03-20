@@ -64,13 +64,13 @@ const page = () => {
           </div>
         </div>
         <div className="selection-info flex items-center justify-end mt-5 p-5 bg-[#01D2B3] rounded-lg text-gray-500 font-medium">
-        <div className="flex">
-          <Button
-            variant="custom"
-            label="Tambahkan product"
-          />
+          <div className="flex">
+            <Button
+              variant="custom"
+              label="Update product"
+            />
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );
