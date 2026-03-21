@@ -14,19 +14,20 @@ export default function PromptingLayout({
   return (
     <div className="grow flex flex-col space-y-6">
       {pathname === "/agent" && (
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex flex-row items-center justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold poppins-bold text-foreground mb-2">Agent Management</h1>
+            <h1 className="text-xl sm:text-3xl font-bold poppins-bold text-foreground sm:mb-2 text-nowrap">Agent Management</h1>
           </div>
 
-          <div className="flex gap-4 w-full sm:w-auto">
+          <div className="flex gap-4 w-auto">
             <Button
               label="Add New Agent"
+              hideLabelOnMobile
               moveTo="/agent/add-agent"
               variant="primary"
               icon={<Icon icon="solar:add-circle-bold-duotone" width={20} />}
               iconPosition="left"
-              className="w-full sm:w-auto gap-2 px-6 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
+              className="w-11 h-11 sm:w-auto sm:h-auto gap-2 px-0 sm:px-6 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all"
             />
           </div>
         </div>

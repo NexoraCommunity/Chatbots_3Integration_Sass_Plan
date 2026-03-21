@@ -28,7 +28,7 @@ export const ToastContainer = () => {
   const { toasts, removeToast } = useToastStore();
 
   return (
-    <div className="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none">
+    <div className="fixed bottom-6 left-4 right-4 md:left-auto md:right-8 md:bottom-8 z-[9999] flex flex-col gap-3 pointer-events-none items-center md:items-end">
       <AnimatePresence mode="popLayout">
         {toasts.map((toast) => (
           <motion.div
@@ -38,21 +38,21 @@ export const ToastContainer = () => {
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`pointer-events-auto min-w-[320px] max-w-md p-4 rounded-2xl border shadow-xl flex items-start gap-4 ${colorMap[toast.type]}`}
+            className={`pointer-events-auto w-full md:min-w-[320px] md:max-w-md p-4 rounded-2xl border shadow-xl flex items-center gap-4 ${colorMap[toast.type]}`}
           >
-            <div className="flex-shrink-0 mt-0.5">
-              <Icon icon={iconMap[toast.type]} width={24} />
+            <div className="flex-shrink-0">
+              <Icon icon={iconMap[toast.type]} width={22} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold poppins-bold pr-6 leading-tight">
+              <p className="text-[11px] sm:text-xs font-black uppercase tracking-widest leading-none">
                 {toast.message}
               </p>
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+              className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors ml-2"
             >
-              <Icon icon="solar:close-circle-bold" width={20} />
+              <Icon icon="solar:close-circle-bold" width={18} />
             </button>
           </motion.div>
         ))}

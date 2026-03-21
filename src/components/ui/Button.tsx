@@ -12,6 +12,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
   iconPosition?: "left" | "right" | "mid";
   size?: "sm" | "md" | "lg";
+  hideLabelOnMobile?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -29,6 +30,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       type = "button",
       size = "md",
+      hideLabelOnMobile,
       ...props
     },
     ref
@@ -74,10 +76,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {/* LEFT */}
-        {icon && iconPosition === "left" && <span className="mr-2">{icon}</span>}
+        {icon && iconPosition === "left" && (
+          <span className={hideLabelOnMobile ? "sm:mr-2" : "mr-2"}>{icon}</span>
+        )}
 
         {/* CONTENT (LABEL or CHILDREN) */}
-        <div className={`flex items-center gap-2 ${iconPosition === "mid" ? "opacity-0" : ""}`}>
+        <div className={`flex items-center gap-2 ${iconPosition === "mid" ? "opacity-0" : ""} ${hideLabelOnMobile ? "hidden sm:flex" : ""}`}>
           {children || <span>{label}</span>}
         </div>
 

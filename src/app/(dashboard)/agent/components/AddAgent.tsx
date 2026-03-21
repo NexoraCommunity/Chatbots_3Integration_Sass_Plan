@@ -231,7 +231,7 @@ const AddAgent = () => {
   const handleShippingToggle = useCallback(() => setIsShippingEnabled(prev => !prev), []);
 
   return (
-    <div className="flex flex-col space-y-8 max-w-full mx-auto w-full pb-32 lg:pb-8">
+    <div className="flex flex-col space-y-8 max-w-full mx-auto w-full min-h-screen">
       <div className="flex items-center gap-4">
         <Button
           variant="secondary"
@@ -305,68 +305,32 @@ const AddAgent = () => {
         </div>
       </div>
 
-      {/* Premium Floating Footer (Mobile/Tablet) */}
-      <div className="fixed bottom-6 left-4 right-4 z-50 lg:hidden">
-        <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-4 space-y-4 border border-white/50 animate-in fade-in slide-in-from-bottom-10 duration-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#10b981]/10 flex items-center justify-center text-[#10b981] font-black text-sm shadow-inner border border-[#10b981]/20">
+      {/* Unified Sticky Footer */}
+      <div className="sticky bottom-0 w-full z-50 px-4 md:px-0 mt-auto  transition-all duration-300">
+        <div className="mx-auto max-w-5xl p-4 sm:p-5 bg-white/90 backdrop-blur-2xl border border-white shadow-[0_20px_50px_rgba(0,0,0,0.12)] rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
+          <div className="flex items-center gap-4 sm:ml-4 w-full sm:w-auto justify-center sm:justify-start">
+            <div className="bg-[#10b981]/10 text-[#10b981] w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg border border-[#10b981]/20 shadow-inner">
               {selectedProducts.size}
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-black text-gray-900 tracking-tight leading-none">Products Selected</span>
-              <span className="text-[10px] text-gray-400 font-black italic mt-1">Knowledge coverage</span>
+            <div className="flex flex-col text-center sm:text-left">
+              <span className="text-sm font-black text-gray-900 tracking-tight">Products Selected</span>
+              <span className="text-[10px] text-gray-400 font-bold italic">Knowledge base coverage</span>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3 sm:gap-4 w-full sm:w-auto">
             <button
               onClick={() => router.push("/agent")}
-              className="flex-1 py-3 bg-gray-50 hover:bg-gray-100 text-gray-900 rounded-[1rem] font-bold text-[10px] transition-all active:scale-95 border border-gray-100 uppercase tracking-widest"
+              className="flex-1 sm:flex-none px-8 sm:px-10 py-3 bg-gray-50 hover:bg-gray-100 text-gray-900 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 border border-gray-100"
             >
               Discard
             </button>
             <button
               onClick={handleCreateAgent}
               disabled={isSaving}
-              className="flex-1 py-3 bg-[#10b981] hover:bg-[#0da371] text-white disabled:opacity-50 rounded-[1rem] font-bold text-[10px] shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest"
+              className="flex-[2] sm:flex-none px-10 sm:px-12 py-3 bg-[#10b981] hover:bg-[#0da371] text-white disabled:opacity-50 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              {isSaving ? (
-                <Icon icon="solar:spinner-bold" className="animate-spin" width={14} />
-              ) : (
-                "Create Agent"
-              )}
+              {isSaving ? "Creating..." : "Create Agent"}
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Refined Desktop Footer (Hidden on mobile) */}
-      <div className="hidden lg:block sticky bottom-6 w-full z-40 mt-12 px-4">
-        <div className="mx-auto max-w-4xl">
-          <div className="p-4 bg-white/90 backdrop-blur-xl border border-white shadow-[0_15px_40px_rgba(0,0,0,0.08)] rounded-[2rem] flex items-center justify-between gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center gap-4 ml-4">
-              <div className="bg-[#10b981]/10 text-[#10b981] w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg border border-[#10b981]/20">
-                {selectedProducts.size}
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-black text-gray-900">Products Selected</span>
-                <span className="text-[10px] text-gray-400 font-bold italic">Knowledge base coverage</span>
-              </div>
-            </div>
-            <div className="flex gap-3 mr-2">
-              <button
-                onClick={() => router.push("/agent")}
-                className="px-8 py-3 bg-gray-50 hover:bg-gray-100 text-gray-900 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 border border-gray-100"
-              >
-                Discard
-              </button>
-              <button
-                onClick={handleCreateAgent}
-                disabled={isSaving}
-                className="px-10 py-3 bg-[#10b981] hover:bg-[#0da371] text-white disabled:opacity-50 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-[1.02] transition-all active:scale-95 flex items-center gap-2"
-              >
-                {isSaving ? "Creating..." : "Create Agent"}
-              </button>
-            </div>
           </div>
         </div>
       </div>

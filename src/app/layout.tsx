@@ -21,6 +21,8 @@ export const metadata: Metadata = {
 
 import { ToastContainer } from "@/src/components/ui/Toast";
 
+import { SocketProvider } from "@/src/components/providers/SocketProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,7 +33,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SocketProvider>
+          {children}
+        </SocketProvider>
         <ToastContainer />
       </body>
     </html>

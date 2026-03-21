@@ -44,8 +44,11 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+import { useSocketStore } from "@/src/store/socket/useSocketStore";
+
 const AgentList = () => {
   const { userAgents, isLoading, fetchUserAgents, removeUserAgent, pagination } = useUserAgentStore();
+  const { agentStatuses } = useSocketStore();
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
 
@@ -69,6 +72,14 @@ const AgentList = () => {
     };
     loadAgents();
   }, [fetchUserAgents, addToast, user?.id, pagination.page, pagination.pageSize]);
+
+  const agentsWithStatus = userAgents.map(agent => {
+    const socketStatus = agentStatuses[agent.id];
+    return {
+      ...agent,
+      vectorStatus: socketStatus ? socketStatus.status : agent.vectorStatus
+    };
+  });
 
   const handlePageChange = (newPage: number) => {
     if (!user?.id) return;
@@ -133,7 +144,7 @@ const AgentList = () => {
   return (
     <div className="flex flex-col flex-1 min-h-[calc(100vh-280px)] space-y-8 animate-in fade-in duration-500">
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {userAgents.map((agent) => (
+        {agentsWithStatus.map((agent) => (
           <Cards key={agent.id} className="group hover:-translate-y-1 transition-all duration-300 overflow-visible">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div className="flex items-center gap-3">
@@ -160,19 +171,11 @@ const AgentList = () => {
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-gray-50 flex-wrap sm:flex-nowrap">
                 <div className="flex items-center gap-1 px-2 py-0.5 bg-primary/5 text-primary rounded-lg border border-primary/10">
-                  <Icon icon="solar:user-id-bold-duotone" width={12} />
+                  <Icon icon="solar:document-bold-duotone" width={12} />
                   <span className="text-[9px] font-bold uppercase tracking-wider">{agent.agent?.replace(/-/g, ' ')}</span>
                 </div>
-                <Button
-                  moveTo={`/agent/test-agent?id=${agent.id}`}
-                  label="Test Agent"
-                  variant="primary"
-                  className="px-4 py-2.5 text-[10px] h-auto gap-2 font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.05] transition-all"
-                  icon={<Icon icon="solar:play-circle-bold" width={16} />}
-                  iconPosition="left"
-                />
               </div>
             </CardContent>
           </Cards>
