@@ -15,9 +15,11 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     const onConnect = () => {
       setConnected(true);
-      console.log("🔌 [SocketProvider] Connected");
       if (user?.id) {
+        console.log("🔌 [SocketProvider] Joining user room:", user.id);
         socket.emit("joinUser", { userId: user.id });
+      } else {
+        console.warn("🔌 [SocketProvider] No User ID found, skipping joinUser");
       }
     };
 
@@ -27,7 +29,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const onError = (error: any) => {
-      console.error("🔌 [SocketProvider] Error:", error);
+      console.error("🔌 [SocketProvider] Connection Error:", error);
     };
 
     const onAgentStatus = (payload: any) => {
@@ -39,10 +41,13 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
+
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("connect_error", onError);
     socket.on("agent-status", onAgentStatus);
+
+
 
     if (socket.connected && user?.id) {
       socket.emit("joinUser", { userId: user.id });

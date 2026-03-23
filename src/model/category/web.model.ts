@@ -4,3 +4,11 @@ export interface Pagination {
   totalItems: number;
   totalPages: number;
 }
+
+export interface WebResponse<T> {
+  data?: T;
+  error?: string;
+  message?: string;
+  status?: string;
+  pagination?: Pagination;
+}

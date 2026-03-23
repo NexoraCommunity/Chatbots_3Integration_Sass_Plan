@@ -41,6 +41,7 @@ export default function EditRajaOngkir({ params }: { params: Promise<{ id: strin
   const [selectedCityId, setSelectedCityId] = useState("");
   const [selectedDistrictId, setSelectedDistrictId] = useState("");
   const [selectedVillageId, setSelectedVillageId] = useState("");
+  const [kodePos, setKodePos] = useState("");
 
   const {
     provinces, regencies, districts, villages, isLoading: isLoadingAddress,
@@ -63,6 +64,7 @@ export default function EditRajaOngkir({ params }: { params: Promise<{ id: strin
           apiKey: config.apiKey || "",
         });
         setSelectedCouriers(config.courier ? config.courier.split(":") : []);
+        setKodePos(config.origin?.kodePos || "");
       }).catch((err) => {
         console.error("Failed to fetch RajaOngkir detail for edit:", err);
         addToast(err.message || "Failed to fetch details", "error");
@@ -116,15 +118,24 @@ export default function EditRajaOngkir({ params }: { params: Promise<{ id: strin
       return;
     }
 
-    let originString = (currentContentIntegration?.configJson as RajaOngkirConfig).origin;
+    let originData = (currentContentIntegration?.configJson as RajaOngkirConfig).origin;
 
-    // If a new village is selected, update the origin string
+    // If a new village is selected, update the origin object
     if (selectedVillageId) {
       const provinceName = provinces.find(p => p.id === selectedProvinceId)?.name || "";
       const cityName = regencies.find(c => c.id === selectedCityId)?.name || "";
       const districtName = districts.find(d => d.id === selectedDistrictId)?.name || "";
       const villageName = villages.find(v => v.id === selectedVillageId)?.name || "";
-      originString = `${provinceName}, ${cityName}, ${districtName}, ${villageName}`;
+      originData = {
+        provinsi: provinceName,
+        kota: cityName,
+        kecamatan: districtName,
+        kelurahan: villageName,
+        ...(kodePos ? { kodePos } : {}),
+      };
+    } else if (kodePos !== (originData?.kodePos || "")) {
+      // Update kodePos even if address dropdowns weren't changed
+      originData = { ...originData, ...(kodePos ? { kodePos } : { kodePos: undefined }) };
     }
 
     try {
@@ -133,7 +144,7 @@ export default function EditRajaOngkir({ params }: { params: Promise<{ id: strin
         name: formData.name,
         apiKey: formData.apiKey,
         courier: selectedCouriers.join(":"),
-        origin: originString,
+        origin: originData,
       });
 
       addToast("Configuration updated successfully", "success");
@@ -281,7 +292,7 @@ export default function EditRajaOngkir({ params }: { params: Promise<{ id: strin
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Current Origin</span>
-                    <span className="text-sm font-bold text-indigo-900">{(currentContentIntegration?.configJson as RajaOngkirConfig)?.origin || "Not set"}</span>
+                    <span className="text-sm font-bold text-indigo-900">{(() => { const o = (currentContentIntegration?.configJson as RajaOngkirConfig)?.origin; return o ? `${o.provinsi}, ${o.kota}, ${o.kecamatan}, ${o.kelurahan}` : "Not set"; })()}</span>
                   </div>
                 </div>
 
@@ -336,6 +347,16 @@ export default function EditRajaOngkir({ params }: { params: Promise<{ id: strin
                       <option value="">Select Village</option>
                       {villages.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
                     </select>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Kode Pos (Optional)</label>
+                    <Input
+                      variant="secondary"
+                      placeholder="e.g. 12345"
+                      className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                      value={kodePos}
+                      onChange={(e) => { setIsInitialLoad(false); setKodePos(e.target.value); }}
+                    />
                   </div>
                 </div>
                 {isLoadingAddress && (

@@ -3,7 +3,7 @@ import { SideBarItems } from "./SideBarItems";
 import { SubSideBarItems } from "./subSideBarItems";
 import { Icon } from "@iconify/react";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ViewProfileModal } from "./modal/ViewProfileModal";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/src/store/ui/sidebar.store";
@@ -97,6 +97,19 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
   const [openIntegration, setOpenIntregation] = useState(false);
   const [openCustomer, setOpenCustomer] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
+  const profileContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileContainerRef.current && !profileContainerRef.current.contains(event.target as Node)) {
+        setOpenProfile(false);
+      }
+    };
+    if (openProfile) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openProfile]);
 
   const { isShrunk, toggleShrunk, setShrunk } = useSidebarStore();
 
@@ -137,15 +150,19 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           "flex items-center justify-between py-10 mb-2 transition-all duration-300 relative",
           isShrunk ? "px-0 justify-center" : "px-6"
         )}>
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2.5 rounded-2xl text-primary ring-4 ring-primary/5">
+          <div className={cn(
+            "flex items-center transition-all duration-300",
+            isShrunk ? "gap-0" : "gap-3"
+          )}>
+            <div className="bg-primary/10 p-2.5 rounded-2xl text-primary ring-4 ring-primary/5 shrink-0">
               <Icon icon="mingcute:robot-fill" width="32" height="32" />
             </div>
-            {!isShrunk && (
-              <div className="flex flex-col">
-                <h2 className="font-bold text-xl tracking-tight text-foreground leading-none">HiChet</h2>
-              </div>
-            )}
+            <div className={cn(
+              "flex flex-col overflow-hidden transition-all duration-300",
+              isShrunk ? "max-w-0 opacity-0" : "max-w-[150px] opacity-100"
+            )}>
+              <h2 className="font-bold text-xl tracking-tight text-foreground leading-none whitespace-nowrap">HiChet</h2>
+            </div>
           </div>
 
           {/* Manual Toggle Button (Desktop) */}
@@ -172,7 +189,18 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           isShrunk ? "px-3" : "px-6"
         )}>
           <div className="mb-6">
-            {!isShrunk && <h3 className="px-4 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Main Menu</h3>}
+            <div className={cn(
+              "transition-all duration-300 flex items-center mb-2",
+              isShrunk ? "justify-center px-0" : "px-4"
+            )}>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex">
+                <span>M</span>
+                <span className={cn(
+                  "whitespace-nowrap overflow-hidden transition-all duration-300",
+                  isShrunk ? "max-w-0 opacity-0" : "max-w-[100px] opacity-100"
+                )}>ain Menu</span>
+              </h3>
+            </div>
             {mainMenu.map((item) => (
               <SideBarItems
                 key={item.href}
@@ -186,7 +214,18 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           </div>
           {/* Sales Menu */}
           <div className="mb-6">
-            {!isShrunk && <h3 className="px-4 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bot Menu</h3>}
+            <div className={cn(
+              "transition-all duration-300 flex items-center mb-2 mt-4",
+              isShrunk ? "justify-center px-0" : "px-4"
+            )}>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex">
+                <span>B</span>
+                <span className={cn(
+                  "whitespace-nowrap overflow-hidden transition-all duration-300",
+                  isShrunk ? "max-w-0 opacity-0" : "max-w-[100px] opacity-100"
+                )}>ot Menu</span>
+              </h3>
+            </div>
             {botMenu.map((item) => {
               if (item.label === "Integration") {
                 return (
@@ -234,7 +273,18 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           </div>
           {/* Main Menu */}
           <div className="mb-6">
-            {!isShrunk && <h3 className="px-4 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sales Menu</h3>}
+            <div className={cn(
+              "transition-all duration-300 flex items-center mb-2 mt-4",
+              isShrunk ? "justify-center px-0" : "px-4"
+            )}>
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex">
+                <span>S</span>
+                <span className={cn(
+                  "whitespace-nowrap overflow-hidden transition-all duration-300",
+                  isShrunk ? "max-w-0 opacity-0" : "max-w-[100px] opacity-100"
+                )}>ales Menu</span>
+              </h3>
+            </div>
             {salesMenu.map((item) => {
               if (item.label === "Customer") {
                 return (
@@ -282,28 +332,32 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           </div>
         </div>
 
-        {/* modal */}
-        {openProfile && (
-          <div className="absolute bottom-20 w-full flex justify-center items-center">
-            <ViewProfileModal
-              open={openProfile}
-              onClose={() => setOpenProfile(false)}
-            />
-          </div>
-        )}
         {/* profile */}
-        <div className={cn(
+        <div ref={profileContainerRef} className={cn(
           "p-6 mt-auto border-t border-sidebar-border bg-sidebar/50 backdrop-blur-sm transition-all duration-300",
           isShrunk && "px-3 items-center flex flex-col"
         )}>
+          {/* modal rendered relative to the sidebar container */}
+          {openProfile && (
+            <div className={cn(
+              "absolute bottom-20 z-[70] animate-in fade-in zoom-in-95 duration-200",
+              isShrunk ? "left-12 ml-6" : "left-0 w-full flex justify-center items-center"
+            )}>
+              <ViewProfileModal
+                open={openProfile}
+                onClose={() => setOpenProfile(false)}
+              />
+            </div>
+          )}
+
           <div
             className={cn(
-              "flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/50 cursor-pointer transition-colors w-full",
-              isShrunk && "justify-center px-0"
+              "flex items-center p-2 rounded-xl hover:bg-secondary/50 cursor-pointer transition-all duration-300 w-full",
+              isShrunk ? "justify-center px-0 gap-0" : "gap-3"
             )}
             onClick={handleOpenProfile}
           >
-            <div className="relative">
+            <div className="relative shrink-0">
               <div className="rounded-full bg-primary/20 w-10 h-10 flex justify-center items-center overflow-hidden border border-primary/10">
                 <Icon
                   icon="mdi:account-circle"
@@ -314,20 +368,24 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
               </div>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
-            {!isShrunk && (
-              <div className="flex flex-col flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">Bayu Skak</p>
-                <p className="text-xs text-muted-foreground truncate">Free Plan</p>
-              </div>
-            )}
+            <div className={cn(
+              "flex flex-col min-w-0 overflow-hidden transition-all duration-300",
+              isShrunk ? "max-w-0 opacity-0" : "max-w-[150px] flex-1 opacity-100"
+            )}>
+              <p className="text-sm font-semibold truncate">Bayu Skak</p>
+              <p className="text-xs text-muted-foreground truncate">Free Plan</p>
+            </div>
           </div>
 
           <button className={cn(
-            "mt-4 flex items-center justify-center gap-2 bg-primary text-white text-sm font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20",
-            isShrunk ? "w-12 h-12 p-0" : "w-full px-4 py-3"
+            "mt-4 flex items-center justify-center bg-primary text-white text-sm font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/20",
+            isShrunk ? "w-12 h-12 p-0 gap-0" : "w-full px-4 py-3 gap-2"
           )}>
-            <Icon icon="solar:star-fall-bold" width={20} height={20} />
-            {!isShrunk && <span>Upgrade Plan</span>}
+            <Icon icon="solar:star-fall-bold" width={20} height={20} className="shrink-0" />
+            <span className={cn(
+              "whitespace-nowrap overflow-hidden transition-all duration-300",
+              isShrunk ? "max-w-0 opacity-0" : "max-w-[100px] opacity-100"
+            )}>Upgrade Plan</span>
           </button>
         </div>
       </div>

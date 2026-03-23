@@ -33,12 +33,20 @@ export interface XenditConfig {
   webhookVerif?: string;
 }
 
+export interface ShippingOrigin {
+  provinsi: string;
+  kota: string;
+  kecamatan: string;
+  kelurahan: string;
+  kodePos?: string;
+}
+
 export interface RajaOngkirConfig {
   provider: 'rajaOngkir';
   name: string;
   apiKey: string;
   courier: string;
-  origin: string;
+  origin: ShippingOrigin;
 }
 
 export type ContentIntegrationConfig =

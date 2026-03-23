@@ -187,9 +187,34 @@ export default function RajaOngkirDetail({ params }: { params: Promise<{ id: str
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1">
+                    <div className="space-y-1 md:col-span-2">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Origin Address</p>
-                      <p className="text-sm font-semibold text-gray-900 bg-gray-50/50 p-4 rounded-xl border border-gray-100 shadow-inner">{config.origin}</p>
+                      <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 shadow-inner space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Provinsi</p>
+                            <p className="text-sm font-semibold text-gray-900">{config.origin?.provinsi || "-"}</p>
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Kota</p>
+                            <p className="text-sm font-semibold text-gray-900">{config.origin?.kota || "-"}</p>
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Kecamatan</p>
+                            <p className="text-sm font-semibold text-gray-900">{config.origin?.kecamatan || "-"}</p>
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Kelurahan</p>
+                            <p className="text-sm font-semibold text-gray-900">{config.origin?.kelurahan || "-"}</p>
+                          </div>
+                        </div>
+                        {config.origin?.kodePos && (
+                          <div className="space-y-0.5 pt-2 border-t border-gray-100">
+                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Kode Pos</p>
+                            <p className="text-sm font-semibold text-gray-900">{config.origin.kodePos}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">Created At</p>

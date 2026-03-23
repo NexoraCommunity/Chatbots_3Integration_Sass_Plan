@@ -64,19 +64,17 @@ const DetailProductPage = () => {
           />
           <div className="min-w-0">
             <h1 className="text-lg md:text-2xl poppins-bold text-foreground leading-none truncate">Product Details</h1>
-            <p className="text-[8px] sm:text-[10px] whitespace-nowrap overflow-hidden font-bold text-muted-foreground mt-1 uppercase tracking-tight sm:tracking-widest">
-              View information about this product
-            </p>
           </div>
         </div>
         <Button
           variant="primary"
           moveTo={`/product-manager/edit-product/${id}`}
-          className="h-10 px-3 sm:h-11 sm:px-6 font-bold shadow-lg shadow-primary/20 rounded-2xl whitespace-nowrap shrink-0"
-        >
-          <Icon icon="solar:pen-new-square-bold-duotone" width={20} />
-          <span className="hidden sm:inline ml-2 text-xs">Edit Product</span>
-        </Button>
+          label="Edit Product"
+          icon={<Icon icon="solar:pen-new-square-bold-duotone" width={20} />}
+          iconPosition="left"
+          hideLabelOnMobile={true}
+          className="h-10 w-10 sm:h-11 sm:w-auto p-0 sm:px-6 flex items-center justify-center font-bold shadow-lg shadow-primary/20 rounded-[14px] sm:rounded-2xl whitespace-nowrap shrink-0"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -2,6 +2,7 @@ export type ContentIntegration = {
   id: string;
   userIntegrationId: string;
   type: string;
+  name?: string; // Optional name
   configJson: any;
   isUsed: boolean;
   createdAt: string;
@@ -12,6 +13,7 @@ export type UserIntegration = {
   id: string;
   integrationId: number;
   name: string;
+  provider?: string; // Optional provider
   type: string;
   description: string;
   isconnected: boolean;

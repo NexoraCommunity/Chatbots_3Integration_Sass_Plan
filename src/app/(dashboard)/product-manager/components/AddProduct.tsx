@@ -305,7 +305,7 @@ const AddProduct = ({ initialData, isEdit = false }: ProductFormProps) => {
   return (
     <div className="flex flex-col space-y-6 md:space-y-8 min-h-screen animate-in fade-in duration-500 w-full">
       {/* Header */}
-      <div className="flex items-center gap-4 mt-6 px-4 md:px-0">
+      <div className="flex items-center gap-4  px-4 md:px-0">
         <Button
           variant="secondary"
           moveTo="/product-manager"

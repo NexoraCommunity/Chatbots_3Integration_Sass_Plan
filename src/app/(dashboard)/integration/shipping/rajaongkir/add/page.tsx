@@ -40,6 +40,7 @@ export default function AddRajaOngkir() {
   const [selectedCityId, setSelectedCityId] = useState("");
   const [selectedDistrictId, setSelectedDistrictId] = useState("");
   const [selectedVillageId, setSelectedVillageId] = useState("");
+  const [kodePos, setKodePos] = useState("");
 
   const {
     provinces, regencies, districts, villages, isLoading: isLoadingAddress,
@@ -99,8 +100,6 @@ export default function AddRajaOngkir() {
     const districtName = districts.find(d => d.id === selectedDistrictId)?.name || "";
     const villageName = villages.find(v => v.id === selectedVillageId)?.name || "";
 
-    const originString = `${provinceName}, ${cityName}, ${districtName}, ${villageName}`;
-
     try {
       await create(
         "rajaOngkir",
@@ -109,7 +108,13 @@ export default function AddRajaOngkir() {
           name: formData.name,
           apiKey: formData.apiKey,
           courier: selectedCouriers.join(":"),
-          origin: originString,
+          origin: {
+            provinsi: provinceName,
+            kota: cityName,
+            kecamatan: districtName,
+            kelurahan: villageName,
+            ...(kodePos ? { kodePos } : {}),
+          },
         },
         userIntegrationId
       );
@@ -288,6 +293,16 @@ export default function AddRajaOngkir() {
                       <option value="">Select Village</option>
                       {villages.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
                     </select>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1">Kode Pos (Optional)</label>
+                    <Input
+                      variant="secondary"
+                      placeholder="e.g. 12345"
+                      className="bg-gray-50/50 border-gray-100 focus:bg-white transition-all h-14 text-sm font-semibold"
+                      value={kodePos}
+                      onChange={(e) => setKodePos(e.target.value)}
+                    />
                   </div>
                 </div>
                 {isLoadingAddress && (

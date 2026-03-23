@@ -50,18 +50,26 @@ const SideBarItems = ({
         }}
       >
         <div className={cn(
-          "flex items-center gap-3 flex-1 select-none",
-          isShrunk ? "justify-center ml-0" : "ml-4"
+          "flex items-center flex-1 select-none transition-all duration-300",
+          isShrunk ? "justify-center ml-0 gap-0" : "ml-4 gap-3"
         )}>
-          {icon}
-          {!isShrunk && <span>{label}</span>}
+          <div className="shrink-0">{icon}</div>
+          <span className={cn(
+            "whitespace-nowrap overflow-hidden transition-all duration-300",
+            isShrunk ? "max-w-0 opacity-0" : "max-w-[150px] opacity-100"
+          )}>
+            {label}
+          </span>
         </div>
-        {!isShrunk && toggle && (
-          <div className="mr-1">
+        {toggle && (
+          <div className={cn(
+            "transition-all duration-300 overflow-hidden flex items-center justify-center shrink-0",
+            isShrunk ? "max-w-0 opacity-0 mr-0" : "max-w-[20px] opacity-100 mr-1"
+          )}>
             <Icon
               icon="lucide:chevron-down"
               className={cn(
-                "w-4 h-4 text-muted-foreground transition-transform duration-200",
+                "w-4 h-4 text-muted-foreground transition-transform duration-300",
                 isOpen && "rotate-180"
               )}
             />
@@ -79,11 +87,16 @@ const SideBarItems = ({
       className={baseClass}
     >
       <div className={cn(
-        "flex items-center gap-3 flex-1 select-none",
-        isShrunk ? "justify-center ml-0" : "ml-4"
+        "flex items-center flex-1 select-none transition-all duration-300",
+        isShrunk ? "justify-center ml-0 gap-0" : "ml-4 gap-3"
       )}>
-        {icon}
-        {!isShrunk && <span>{label}</span>}
+        <div className="shrink-0">{icon}</div>
+        <span className={cn(
+          "whitespace-nowrap overflow-hidden transition-all duration-300",
+          isShrunk ? "max-w-0 opacity-0" : "max-w-[150px] opacity-100"
+        )}>
+          {label}
+        </span>
       </div>
     </MotionLink>
   );

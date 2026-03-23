@@ -160,7 +160,9 @@ const DetailAgent = () => {
           moveTo={`/agent/edit/${agentId}`}
           label="Edit Agent"
           icon={<Icon icon="solar:pen-bold" width={18} />}
-          className="px-6 rounded-2xl font-black shadow-lg shadow-primary/20"
+          iconPosition="left"
+          hideLabelOnMobile={true}
+          className="h-10 w-10 sm:h-auto sm:w-auto p-0 sm:px-6 flex items-center justify-center sm:gap-2 rounded-[14px] sm:rounded-2xl font-black shadow-lg shadow-primary/20 shrink-0"
         />
       </div>
 

@@ -1,15 +1,31 @@
+"use client";
+
 import { ReactNode, HTMLAttributes } from "react";
+import { useRouter } from "next/navigation";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
+  moveTo?: string;
 }
 
-const Cards = ({ children, className, ...props }: CardProps) => {
+const Cards = ({ children, className, moveTo, onClick, ...props }: CardProps) => {
+  const router = useRouter();
+
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (moveTo) {
+      router.push(moveTo);
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   return (
     <div
       {...props}
-      className={`rounded-2xl bg-card text-card-foreground border border-border shadow-xs overflow-hidden transition-all duration-200 hover:shadow-sm ${className ?? ""}`}
+      onClick={handleClick}
+      className={`rounded-2xl bg-card text-card-foreground border border-border shadow-xs overflow-hidden transition-all duration-200 hover:shadow-sm ${moveTo || onClick ? "cursor-pointer" : ""} ${className ?? ""}`}
     >
       {children}
     </div>

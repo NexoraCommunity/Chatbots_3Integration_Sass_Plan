@@ -2,7 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 const axiosInstance = axios.create({
   baseURL: "/",
-  withCredentials: true, // Ensure cookies are sent (HttpOnly)
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

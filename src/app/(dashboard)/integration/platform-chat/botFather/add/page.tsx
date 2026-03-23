@@ -76,11 +76,10 @@ export default function AddTelegram() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === tab.id
-                ? "bg-white text-primary shadow-sm"
-                : "text-muted-foreground hover:text-gray-900"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeTab === tab.id
+              ? "bg-white text-primary shadow-sm"
+              : "text-muted-foreground hover:text-gray-900"
+              }`}
           >
             <Icon icon={tab.icon} width={16} />
             <span className="hidden sm:inline">{tab.label}</span>
