@@ -5,8 +5,9 @@ import { Icon } from "@iconify/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { ViewProfileModal } from "./modal/ViewProfileModal";
-import { cn } from "@/lib/utils";
+import { cn, getFullImageUrl } from "@/lib/utils";
 import { useSidebarStore } from "@/src/store/ui/sidebar.store";
+import { useAuthStore } from "@/src/store/authentication/auth.store";
 
 const botMenu = [
   {
@@ -39,26 +40,21 @@ const salesMenu = [
     href: "/product-manager",
   },
   {
-    label: "Sales Menu",
-    icon: (
-      <Icon
-        icon="material-symbols:payment-arrow-down-outline-rounded"
-        width="16"
-        height="16"
-      />
-    ),
-    href: "/payment",
-  },
-  {
     label: "Sales Monitoring",
     icon: <Icon icon="grommet-icons:shop" width="16" height="16" />,
     href: "/sales-monitoring",
+  },
+  {
+    label: "Deals",
+    icon: <Icon icon="solar:reorder-bold" width="16" height="16" />,
+    href: "/deals",
   },
   {
     label: "Customer",
     icon: <Icon icon="famicons:people" width="16" height="16" />,
     href: "/customer/kontak",
   },
+
 ];
 
 const mainMenu = [
@@ -86,6 +82,11 @@ const customerSubMenu = [
   { labelSub: "Support", subHref: "/customer/support" },
 ];
 
+const salesMonitoringSubMenu = [
+  { labelSub: "Order", subHref: "/sales-monitoring/order" },
+  { labelSub: "Transaction", subHref: "/sales-monitoring/transaction" },
+];
+
 interface SideBarProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -94,8 +95,10 @@ interface SideBarProps {
 // Page
 const SideBar = ({ isOpen, onClose }: SideBarProps) => {
   const activePath = usePathname();
+  const { user } = useAuthStore();
   const [openIntegration, setOpenIntregation] = useState(false);
   const [openCustomer, setOpenCustomer] = useState(false);
+  const [openSalesMonitoring, setOpenSalesMonitoring] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const profileContainerRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +117,6 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
   const { isShrunk, toggleShrunk, setShrunk } = useSidebarStore();
 
   useEffect(() => {
-    // Auto-shrink on kontak page
     if (activePath === "/customer/kontak") {
       setShrunk(true);
     } else {
@@ -125,6 +127,7 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
   useEffect(() => {
     setOpenIntregation(activePath.startsWith("/integration"));
     setOpenCustomer(activePath.startsWith("/customer"));
+    setOpenSalesMonitoring(activePath.startsWith("/sales-monitoring"));
   }, [activePath]);
 
   const handleOpenProfile = () => {
@@ -318,6 +321,38 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
                   </div>
                 );
               }
+              if (item.label === "Sales Monitoring") {
+                return (
+                  <div key={item.href}>
+                    <SideBarItems
+                      label={item.label}
+                      href={item.href}
+                      icon={item.icon}
+                      toggle
+                      active={openSalesMonitoring}
+                      isOpen={openSalesMonitoring}
+                      isShrunk={isShrunk}
+                      onToggle={() => {
+                        setOpenSalesMonitoring((prev) => !prev);
+                      }}
+                    />
+                    {openSalesMonitoring && !isShrunk && (
+                      <div className="ml-9 pl-7 border-l-2 border-sidebar-border/50 flex flex-col gap-4 my-2">
+                        {salesMonitoringSubMenu.map((sub) => {
+                          return (
+                            <SubSideBarItems
+                              key={sub.subHref}
+                              labelSub={sub.labelSub}
+                              subHref={sub.subHref}
+                              active={activePath.includes(sub.subHref)}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
               return (
                 <SideBarItems
                   key={item.href}
@@ -359,12 +394,16 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
           >
             <div className="relative shrink-0">
               <div className="rounded-full bg-primary/20 w-10 h-10 flex justify-center items-center overflow-hidden border border-primary/10">
-                <Icon
-                  icon="mdi:account-circle"
-                  width="32"
-                  height="32"
-                  className="text-primary"
-                />
+                {user?.picture ? (
+                  <img src={getFullImageUrl(user.picture)} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <Icon
+                    icon="mdi:account-circle"
+                    width="32"
+                    height="32"
+                    className="text-primary"
+                  />
+                )}
               </div>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
@@ -372,8 +411,8 @@ const SideBar = ({ isOpen, onClose }: SideBarProps) => {
               "flex flex-col min-w-0 overflow-hidden transition-all duration-300",
               isShrunk ? "max-w-0 opacity-0" : "max-w-[150px] flex-1 opacity-100"
             )}>
-              <p className="text-sm font-semibold truncate">Bayu Skak</p>
-              <p className="text-xs text-muted-foreground truncate">Free Plan</p>
+              <p className="text-sm font-semibold truncate">{user?.firstName || "User"} {user?.lastName || ""}</p>
+              <p className="text-xs text-muted-foreground truncate">{user?.userSubcription?.[0]?.subcribtion?.name || "Free Plan"}</p>
             </div>
           </div>
 

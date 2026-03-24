@@ -104,11 +104,13 @@ const AddBot = ({ initialData, isEdit = false }: BotFormProps) => {
 
     // 2. Extract and filter content integrations
     return relevantProviders.flatMap((ui) =>
-      (ui.contentIntegrations || []).map(ci => ({
-        ...ci,
-        parentName: ui.name,
-        displayName: ci.configJson?.botName || ci.configJson?.name || ci.name || `${ui.name} Config (${ci.id.slice(0, 4)})`
-      }))
+      (ui.contentIntegrations || [])
+        .filter(ci => !ci.isUsed)
+        .map(ci => ({
+          ...ci,
+          parentName: ui.name,
+          displayName: ci.configJson?.botName || ci.configJson?.name || ci.name || `${ui.name} Config (${ci.id.slice(0, 4)})`
+        }))
     ).filter(config => {
       const configType = (config.type || "").toLowerCase();
       const botTypeLower = botType.toLowerCase();

@@ -14,8 +14,8 @@ import { useRouter } from "next/navigation";
 interface ActionMenuProps {
   baseUrl: string;
   id: string | number;
-  detailUrl?: string; // Optional override for detail link
-  editUrl?: string;   // Optional override for edit link
+  detailUrl?: string;
+  editUrl?: string;
   onlyDetail?: boolean;
   onDelete?: (id: string | number) => void;
 }
@@ -42,7 +42,7 @@ export const ActionMenu = ({ baseUrl, id, detailUrl, editUrl, onlyDetail = false
           <Icon icon="lucide:eye" width={16} />
           <span>Detail</span>
         </DropdownMenuItem>
-        
+
         {!onlyDetail && (
           <>
             <DropdownMenuItem

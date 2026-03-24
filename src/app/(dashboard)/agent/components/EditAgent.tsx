@@ -375,8 +375,8 @@ const EditAgent = () => {
             </button>
             <button
               onClick={handleUpdateAgent}
-              disabled={isSaving}
-              className="flex-[2] sm:flex-none px-10 sm:px-12 py-3 bg-[#10b981] hover:bg-[#0da371] text-white disabled:opacity-50 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2"
+              disabled={isSaving || !formData.name || !formData.prompt || !formData.filePath || selectedProducts.size === 0}
+              className="flex-[2] sm:flex-none px-10 sm:px-12 py-3 bg-[#10b981] hover:bg-[#0da371] text-white disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               {isSaving ? "Updating..." : "Update Agent"}
             </button>

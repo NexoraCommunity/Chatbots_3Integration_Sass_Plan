@@ -12,6 +12,7 @@ import OtpModal from "@/src/components/ui/modal/VerificationOtp";
 import { GoogleOauth } from "@/src/services/api-auth/authentication.route";
 import { ForgotPasswordModal } from "@/src/components/ui/modal/ForgotPasswordModal";
 import { ChangeForgotPasswordModal } from "@/src/components/ui/modal/ChangeForgotPasswordModal";
+import { useToastStore } from "@/src/store/ui/toast.store";
 import { cn } from "@/lib/utils";
 
 const Page = () => {
@@ -67,10 +68,11 @@ const Page = () => {
       const response = await verifPasswordOtp(dataForgotPassword);
       if (response) {
         setForgotPasswordModal({ ...forgotPasswordModal, verif: false, otp: true });
-        setDataForgotPassword({ ...dataForgotPassword, id: user?.id || '' });
+        addToast("OTP telah dikirim ke email", "success");
       }
     } catch (error: any) {
-      console.log(error);
+      console.log("Send OTP Error:", error);
+      addToast(error.message || error.error || "Gagal mengirim OTP", "error");
     }
   };
 
@@ -78,21 +80,25 @@ const Page = () => {
     e.preventDefault();
     try {
       setForgotPasswordModal({ ...forgotPasswordModal, verif: false, otp: false, update: true });
-      setChangeForgotPassword({ ...changeForgotPassword, codeOTP: Otp, id: user?.id || '' });
+      setChangeForgotPassword({ ...changeForgotPassword, codeOTP: Otp, email: dataForgotPassword.email });
     } catch (error: any) {
       console.log(error);
     }
   };
+
+  const { addToast } = useToastStore();
 
   const handleOnSubmitVerifForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await forgotPassword(changeForgotPassword);
       if (response) {
-        setForgotPasswordModal({ ...forgotPasswordModal, verif: false, otp: true });
+        setForgotPasswordModal({ otp: false, verif: false, update: false });
+        addToast("Password berhasil diubah!", "success");
       }
     } catch (error: any) {
-      console.log(error);
+      console.log("Verif Password Error:", error);
+      addToast(error.message || error.error || "Gagal mengubah password", "error");
     }
   };
 

@@ -3,7 +3,6 @@ import {
   OtpCodeProps,
   PostCurrentUser,
   RegisterProps,
-  UpdatePassworduser,
   VerifPassword,
 } from "@/src/model/authentication/authentication.model";
 import { apiFetch } from "@/src/lib/api";
@@ -36,7 +35,6 @@ export const logOut = async () => {
 };
 
 export const refreshToken = async () => {
-  // Use standard fetch here to avoid recursion in apiFetch
   try {
     const response = await fetch(`/api-backend/auth/refresh`, {
       method: "GET",
@@ -67,14 +65,6 @@ export const updateUser = async (req: PostCurrentUser) => {
 export const verifPasswordOtp = async (req: VerifPassword) => {
   const { id, ...user } = req;
   return apiFetch(`/api-backend/api/user/sendOtp`, {
-    method: "POST",
-    body: JSON.stringify(user),
-  });
-};
-
-export const forgotPassword = async (req: UpdatePassworduser) => {
-  const { id, ...user } = req;
-  return apiFetch(`/api-backend/api/user/forgotpassword`, {
     method: "POST",
     body: JSON.stringify(user),
   });

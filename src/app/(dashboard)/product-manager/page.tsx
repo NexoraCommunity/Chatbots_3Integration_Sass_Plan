@@ -44,12 +44,13 @@ const Page = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && user?.userSubcription && user.userSubcription.length > 0) {
       fetchCategories({ page: "1", limit: "100" });
     }
-  }, [user?.id, fetchCategories]);
+  }, [user?.id, user?.userSubcription, fetchCategories]);
 
   useEffect(() => {
     loadProducts()
@@ -64,6 +65,8 @@ const Page = () => {
   }, [searchQuery]);
 
   const loadProducts = async () => {
+    setIsError(false);
+
     try {
       const query = {
         userId: user?.id,
@@ -77,8 +80,10 @@ const Page = () => {
       };
       console.log("Loading products with query:", query);
       await fetchProducts(query);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load products:", error);
+      setIsError(true);
+      addToast(error.message || "Gagal memuat daftar produk. Silakan coba lagi.", "error");
     }
   };
 
@@ -185,7 +190,25 @@ const Page = () => {
       {/* Table Section */}
       <Cards className="bg-white border-gray-100 shadow-sm flex flex-col p-0">
         <div className="p-4 md:p-6 flex-1 min-h-[400px]">
-          {isLoading ? (
+          {isError ? (
+            <div className="flex flex-col items-center justify-center h-full py-20 text-center animate-in fade-in zoom-in duration-500">
+              <div className="bg-red-50 p-6 rounded-full mb-6">
+                <Icon icon="solar:danger-bold-duotone" width={64} className="text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 poppins-bold mb-2">Oops! Something went wrong</h3>
+              <p className="text-gray-500 max-w-sm mb-8 poppins-medium">
+                We encountered an error while trying to load your products. Please try again.
+              </p>
+              <Button
+                variant="secondary"
+                onClick={() => loadProducts()}
+                className="h-12 px-10 font-bold border-gray-200"
+              >
+                <Icon icon="solar:restart-bold-duotone" width={20} className="mr-2" />
+                Retry Loading
+              </Button>
+            </div>
+          ) : isLoading ? (
             <div className="flex flex-col items-center justify-center h-full py-20 grayscale opacity-50">
               <Icon icon="solar:box-minimalistic-bold-duotone" width={48} className="animate-pulse" />
               <p className="mt-4 font-bold text-gray-400">Loading products...</p>

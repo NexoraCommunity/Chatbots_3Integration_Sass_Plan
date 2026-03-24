@@ -8,6 +8,18 @@ import { useAuthStore } from "@/src/store/authentication/auth.store";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/src/store/ui/sidebar.store";
 import { useUserIntegrationStore } from "@/src/store/integration/userIntegration.store";
+import { SubscriptionRequired } from "@/src/components/ui/SubscriptionRequired";
+
+function formatCredits(value?: number): string {
+  if (value == null) return "0";
+  if (value >= 999_999_999_999) return "Unlimited";
+  if (value >= 10_000_000) {
+    const jt = Math.floor(value / 1_000_000);
+    return `${jt} jt`;
+  }
+  if (value >= 1_000) return `${Math.floor(value / 1_000)} rb`;
+  return value.toString();
+}
 
 export default function DashboardLayout({
   children,
@@ -93,6 +105,44 @@ export default function DashboardLayout({
     return null;
   }
 
+  const protectedPaths = [
+    "/dashboard",
+    "/bot-builder",
+    "/notification",
+    "/agent",
+    "/integration",
+    "/customer",
+    "/sales-monitoring",
+    "/product-manager",
+    "/payment",
+    "/settings",
+  ];
+
+  const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
+  const hasSubscription = user?.userSubcription && user.userSubcription.length > 0;
+
+  if (isProtectedPath && !hasSubscription) {
+    return (
+      <div className="flex grow h-screen overflow-hidden">
+        <div className={cn(
+          "hidden lg:block flex-shrink-0 transition-all duration-300",
+          isShrunk ? "w-24" : "w-72"
+        )}>
+          <SideBar />
+        </div>
+
+        <SideBar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+        
+        <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#F8F9FA] p-4 md:p-8">
+          <SubscriptionRequired />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex grow h-screen overflow-hidden">
       <div className={cn(
@@ -123,7 +173,7 @@ export default function DashboardLayout({
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
+             <div className="flex items-center gap-6">
               {/* Credits */}
               <div className="hidden lg:flex items-center gap-4 px-5 py-2.5 bg-slate-100/50 rounded-xl border border-transparent group cursor-pointer hover:bg-white hover:border-primary/20 hover:shadow-md transition-all duration-300">
                 <div className="bg-amber-100/50 p-2 rounded-lg group-hover:bg-amber-100 transition-colors">
@@ -135,7 +185,7 @@ export default function DashboardLayout({
                 </div>
                 <div className="flex flex-col leading-tight">
                   <span className="text-[10px] uppercase tracking-[0.12em] font-bold text-slate-400 poppins-bold">Credits</span>
-                  <span className="text-sm font-bold text-slate-900 poppins-bold">970,000</span>
+                  <span className="text-sm font-bold text-slate-900 poppins-bold">{formatCredits(user?.userSubcription?.[0]?.tokenRemain)}</span>
                 </div>
               </div>
             </div>

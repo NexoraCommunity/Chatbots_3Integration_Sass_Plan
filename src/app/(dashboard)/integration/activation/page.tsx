@@ -117,11 +117,12 @@ const IntegrationSection = ({
 const Page = () => {
   const { getAllIntegration, toggleUserIntegration, userIntegrations, isLoading } = useUserIntegrationStore();
   const { user } = useAuthStore();
+  const hasSubscription = user?.userSubcription && user.userSubcription.length > 0;
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchIntegrations = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !hasSubscription) return;
     try {
       setFetchError(null);
       await getAllIntegration(user.id);

@@ -108,12 +108,14 @@ const AgentIntegrations = React.memo(({
                       className={`w-full h-14 rounded-2xl border border-gray-200 bg-white px-5 pr-12 text-base font-medium transition-all focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 outline-none appearance-none ${readOnly ? "cursor-default opacity-80" : "cursor-pointer group-hover:border-orange-500/50"}`}
                     >
                       <option value="">Select configuration...</option>
-                      {selectedPaymentIntegration?.contentIntegrations && selectedPaymentIntegration.contentIntegrations.length > 0 ? (
-                        selectedPaymentIntegration.contentIntegrations.map((content: any) => (
-                          <option key={content.id} value={content.id}>
-                            {content.configJson?.name || content.name || `Config ${content.id.slice(0, 4)}`}
-                          </option>
-                        ))
+                      {selectedPaymentIntegration?.contentIntegrations?.filter((c: any) => !c.isUsed).length ? (
+                        selectedPaymentIntegration.contentIntegrations
+                          .filter((content: any) => !content.isUsed)
+                          .map((content: any) => (
+                            <option key={content.id} value={content.id}>
+                              {content.configJson?.name || content.name || `Config ${content.id.slice(0, 4)}`}
+                            </option>
+                          ))
                       ) : (
                         <option disabled>No configurations found</option>
                       )}
@@ -198,12 +200,14 @@ const AgentIntegrations = React.memo(({
                       className={`w-full h-14 rounded-2xl border border-gray-200 bg-white px-5 pr-12 text-base font-medium transition-all focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none appearance-none ${readOnly ? "cursor-default opacity-80" : "cursor-pointer group-hover:border-green-500/50"}`}
                     >
                       <option value="">Select configuration...</option>
-                      {selectedShippingIntegration?.contentIntegrations && selectedShippingIntegration.contentIntegrations.length > 0 ? (
-                        selectedShippingIntegration.contentIntegrations.map((content: any) => (
-                          <option key={content.id} value={content.id}>
-                            {content.configJson?.name || content.name || `Config ${content.id.slice(0, 4)}`}
-                          </option>
-                        ))
+                      {selectedShippingIntegration?.contentIntegrations?.filter((c: any) => !c.isUsed).length ? (
+                        selectedShippingIntegration.contentIntegrations
+                          .filter((content: any) => !content.isUsed)
+                          .map((content: any) => (
+                            <option key={content.id} value={content.id}>
+                              {content.configJson?.name || content.name || `Config ${content.id.slice(0, 4)}`}
+                            </option>
+                          ))
                       ) : (
                         <option disabled>No configurations found</option>
                       )}

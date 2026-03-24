@@ -4,7 +4,7 @@ import { Checkbox } from "@/src/components/ui/Checkbox";
 import GaugeChart from "@/src/components/ui/GaugeChart";
 import { Switch } from "@/src/components/ui/Switch";
 import { Icon } from "@iconify/react";
-import React from "react";
+
 
 const page = () => {
   const stats = [
@@ -64,8 +64,8 @@ const page = () => {
         <Cards className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-               <Icon icon="solar:link-bold-duotone" className="text-primary" />
-               Connected Platforms
+              <Icon icon="solar:link-bold-duotone" className="text-primary" />
+              Connected Platforms
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -98,8 +98,8 @@ const page = () => {
         <Cards className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-               <Icon icon="solar:widget-bold-duotone" className="text-primary" />
-               Kestabilan Token
+              <Icon icon="solar:widget-bold-duotone" className="text-primary" />
+              Kestabilan Token
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
@@ -128,8 +128,8 @@ const page = () => {
         <Cards className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-               <Icon icon="solar:box-bold-duotone" className="text-primary" />
-               Active Products
+              <Icon icon="solar:box-bold-duotone" className="text-primary" />
+              Active Products
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -145,7 +145,7 @@ const page = () => {
                   </div>
                 </div>
                 <div className="scale-90">
-                   <Switch checked={i === 0} />
+                  <Switch checked={i === 0} />
                 </div>
               </div>
             ))}

@@ -35,8 +35,10 @@ export const apiFetch = async (url: string, options: RequestInit = {}) => {
     const response = await fetch(url, defaultOptions);
     console.log(`📡 apiFetch Response: ${response.status} ${url}`);
 
+    const isAuthRoute = url.includes('login') || url.includes('register') || url.toLowerCase().includes('forgot') || url.includes('sendOtp') || url.includes('otp');
+
     // If unauthorized, attempt to refresh token
-    if (response.status === 401) {
+    if (response.status === 401 && !isAuthRoute) {
       if (!isRefreshing) {
         isRefreshing = true;
         refreshPromise = fetch("/api-backend/auth/refresh", {

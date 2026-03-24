@@ -9,7 +9,6 @@ import type {
   VerifPassword,
 } from "@/src/model/authentication/authentication.model";
 import {
-  forgotPassword,
   getCurrentUser,
   Login,
   logOut,
@@ -17,8 +16,8 @@ import {
   refreshToken,
   Register,
   updateUser,
-  verifPasswordOtp,
 } from "../../services/api-auth/authentication.route";
+import { UserService } from "../../services/api-auth/user.route";
 
 interface AuthState {
   user: User | null;
@@ -34,6 +33,7 @@ interface AuthState {
   verifPasswordOtp: (req: VerifPassword) => Promise<any>;
   updateUser: (req: PostCurrentUser) => Promise<any>;
   getCurrentUser: () => Promise<any>;
+  updateTokenBalance: (newBalance: number) => void;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -120,7 +120,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   forgotPassword: async (req: UpdatePassworduser) => {
     set({ isLoading: true });
     try {
-      const data = await forgotPassword(req);
+      const data = await UserService.updatePassword(req);
       return data;
     } catch (error) {
       throw error;
@@ -131,7 +131,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   verifPasswordOtp: async (req: VerifPassword) => {
     set({ isLoading: true });
     try {
-      const data = await verifPasswordOtp(req);
+      const data = await UserService.sendOtp(req as any);
       return data;
     } catch (error) {
       throw error;
@@ -152,5 +152,16 @@ export const useAuthStore = create<AuthState>()((set) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+  updateTokenBalance: (newBalance: number) => {
+    set((state) => {
+      if (!state.user || !state.user.userSubcription) return state;
+      const subs = [...state.user.userSubcription];
+      if (subs.length > 0) {
+        subs[0] = { ...subs[0], tokenRemain: newBalance };
+        return { user: { ...state.user, userSubcription: subs } };
+      }
+      return state;
+    });
   },
 }));

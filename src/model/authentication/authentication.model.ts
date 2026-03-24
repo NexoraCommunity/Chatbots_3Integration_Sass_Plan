@@ -1,3 +1,5 @@
+import type { UserSubcribtionInfo } from "./user.model";
+
 export type RegisterProps = {
   firstName: string;
   lastName: string;
@@ -39,4 +41,6 @@ export type User = {
   email: string;
   lastName: string;
   picture: string;
+  subscriptionPlan?: string;
+  userSubcription?: UserSubcribtionInfo[];
 };

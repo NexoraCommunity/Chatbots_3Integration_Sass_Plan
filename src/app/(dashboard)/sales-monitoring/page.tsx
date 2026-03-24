@@ -1,9 +1,7 @@
-import React from 'react'
+import { redirect } from "next/navigation";
 
-const page = () => {
-  return (
-    <div>Sales Monitoring</div>
-  )
-}
+const SalesMonitoringPage = () => {
+  redirect("/sales-monitoring/order");
+};
 
-export default page
+export default SalesMonitoringPage;

@@ -53,11 +53,13 @@ export const BotSetupModal = ({
 
     // 2. Extract and filter content integrations
     return relevantProviders.flatMap((ui) =>
-      (ui.contentIntegrations || []).map(ci => ({
-        ...ci,
-        parentName: ui.name,
-        displayName: ci.configJson?.botName || ci.configJson?.name || ci.name || `${ui.name} Config (${ci.id.slice(0, 4)})`
-      }))
+      (ui.contentIntegrations || [])
+        .filter(ci => !ci.isUsed)
+        .map(ci => ({
+          ...ci,
+          parentName: ui.name,
+          displayName: ci.configJson?.botName || ci.configJson?.name || ci.name || `${ui.name} Config (${ci.id.slice(0, 4)})`
+        }))
     ).filter(config => {
       const configType = (config.type || "").toLowerCase();
       const botTypeLower = botType.toLowerCase();
@@ -114,11 +116,6 @@ export const BotSetupModal = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    {config.isUsed && (
-                      <Badge variant="secondary" className="text-[8px] bg-gray-200 text-gray-500 font-black px-1.5 h-4 uppercase tracking-tighter">
-                        In Use
-                      </Badge>
-                    )}
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedId === config.id ? 'border-primary bg-primary text-white scale-110' : 'border-gray-300'
                       }`}>
                       {selectedId === config.id && <Icon icon="mdi:check" width={12} />}
